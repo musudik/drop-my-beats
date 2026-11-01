@@ -1,0 +1,21 @@
+{
+  "name": "dropmybeats",
+  "version": "1.0.0",
+  "description": "DropMyBeats - live song requests for DJ events",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "mock": "node -e \"process.env.SEARCH_MOCK='1';require('./server.js')\""
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.22.3",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}

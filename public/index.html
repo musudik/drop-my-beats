@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>DropMyBeats</title>
+<meta name="description" content="Request songs, like the crowd's picks, and keep the DJ in the loop — live.">
+<link rel="icon" href="/img/icon-192.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <img src="/img/logo-anim.gif" alt="DropMyBeats logo" width="300" height="300">
+    <p>Request songs, back the crowd's favourites, and keep the DJ in sync, live.</p>
+  </section>
+
+  <div class="tabs" role="tablist" style="margin:22px 0 16px">
+    <button class="on" data-tab="join" role="tab">Join a party</button>
+    <button data-tab="host" role="tab">Host an event</button>
+  </div>
+
+  <section id="tab-join" class="card stack">
+    <h2 style="font-size:20px">Enter the event code</h2>
+    <p class="muted small" style="margin-top:4px">It's on the DJ's screen, or scan the QR code with your camera.</p>
+    <form id="joinForm" class="stack">
+      <input id="code" class="input code-input" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="ABCDE" aria-label="Event code">
+      <button class="btn block" type="submit">Let's go</button>
+    </form>
+  </section>
+
+  <section id="tab-host" class="card stack hidden">
+    <h2 style="font-size:20px">Create your event</h2>
+    <p class="muted small" style="margin-top:4px">You'll be the Admin. You'll get a QR code for the crowd and can add Managers with a PIN.</p>
+    <form id="hostForm" class="stack">
+      <label class="field"><span>Event name *</span><input name="name" class="input" required maxlength="60" placeholder="Saturday Night Bollywood Bash"></label>
+      <label class="field"><span>DJ name</span><input name="djName" class="input" maxlength="40" placeholder="DJ Kiran"></label>
+      <label class="field"><span>Venue</span><input name="venue" class="input" maxlength="60" placeholder="Hyderabad"></label>
+      <label class="field"><span>Currency for tips</span><select name="currencyCode" id="currencySel" class="input"><option value="INR">₹ INR</option></select></label>
+      <div class="row" style="align-items:stretch">
+        <label class="brand-pick grow"><input type="file" name="logo" accept="image/*"><img alt="" hidden><span>＋ Event logo<br><small class="faint">optional</small></span></label>
+        <label class="brand-pick grow"><input type="file" name="poster" accept="image/*"><img alt="" hidden><span>＋ Event poster<br><small class="faint">optional</small></span></label>
+      </div>
+      <button class="btn block" type="submit">Create event</button>
+    </form>
+  </section>
+
+  <section id="myEvents" class="hidden" style="margin-top:22px">
+    <h3 style="font-size:15px; color:var(--muted); margin-bottom:10px">Your events on this device</h3>
+    <div id="myEventsList"></div>
+  </section>
+
+  <p class="center faint small" style="margin:36px 0 24px">DropMyBeats</p>
+</main>
+
+<script src="/js/common.js"></script>
+<script>
+const { $, $$, esc, store, toast } = DMB;
+
+$$('.tabs button').forEach((b) => b.onclick = () => {
+  $$('.tabs button').forEach((x) => x.classList.toggle('on', x === b));
+  $('#tab-join').classList.toggle('hidden', b.dataset.tab !== 'join');
+  $('#tab-host').classList.toggle('hidden', b.dataset.tab !== 'host');
+});
+
+$('#code').addEventListener('input', (e) => e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+$('#joinForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const code = $('#code').value.trim();
+  if (code.length < 4) return toast('Enter the event code', true);
+  const r = await fetch('/api/events/' + code);
+  if (!r.ok) return toast("We couldn't find that event", true);
+  location.href = '/e/' + code;
+};
+
+$('#hostForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = { name: fd.get('name'), djName: fd.get('djName'), venue: fd.get('venue'), currencyCode: fd.get('currencyCode') };
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Could not create event');
+    store.set('key:' + j.code, j.adminKey);
+    for (const kind of ['logo', 'poster']) {
+      const f = e.target.elements[kind].files[0];
+      if (!f) continue;
+      btn.textContent = 'Uploading ' + kind + '…';
+      try { await DMB.uploadMedia(j.code, kind, f, j.adminKey); }
+      catch (err) { alert('The event was created, but the ' + kind + " couldn't be uploaded: " + err.message + '. You can add it later in Event settings.'); }
+    }
+    const mine = store.get('myEvents', []);
+    mine.unshift({ code: j.code, name: body.name, at: Date.now() });
+    store.set('myEvents', mine.slice(0, 20));
+    location.href = '/dj/' + j.code + '?welcome=1';
+  } catch (err) { toast(err.message, true); btn.disabled = false; }
+};
+
+fetch('/api/currencies').then((r) => r.json()).then((list) => {
+  $('#currencySel').innerHTML = list.map((c) => `<option value="${c.code}">${esc(c.symbol)} ${c.code}</option>`).join('');
+}).catch(() => {});
+$$('.brand-pick input').forEach((inp) => inp.onchange = () => {
+  const lbl = inp.closest('.brand-pick');
+  const img = lbl.querySelector('img');
+  const f = inp.files[0];
+  img.hidden = !f;
+  lbl.querySelector('span').hidden = !!f;
+  if (f) img.src = URL.createObjectURL(f);
+});
+
+const mine = store.get('myEvents', []);
+if (mine.length) {
+  $('#myEvents').classList.remove('hidden');
+  $('#myEventsList').innerHTML = mine.map((m) => `
+    <a class="song" href="/dj/${esc(m.code)}" style="text-decoration:none;color:inherit">
+      <div class="meta"><div class="t">${esc(m.name)}</div><div class="a">Code ${esc(m.code)} · DJ console</div></div>
+      <span class="btn sm dark">Open</span>
+    </a>`).join('');
+}
+const q = new URLSearchParams(location.search).get('code');
+if (q) $('#code').value = q.toUpperCase();
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>DropMyBeats</title>
+<link rel="icon" href="/img/icon-192.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a href="/"><img src="/img/logo-mark.png" alt="DropMyBeats home"></a>
+    <div class="grow">
+      <div class="wordmark">DropMyBeats</div>
+      <div class="ev-title" id="evTitle">Loading…</div>
+    </div>
+    <button class="icon-btn" id="meBtn" aria-label="Change your name"></button>
+  </div>
+</header>
+<div id="conn" class="conn hidden">Reconnecting…</div>
+
+<main class="wrap pad-bottom" id="main" style="padding-top:16px">
+  <div id="ended" class="card center hidden" style="margin-bottom:12px"><b>This event has ended.</b><div class="muted small">Thanks for partying with us!</div></div>
+  <div id="announce" class="announce hidden" style="margin-bottom:12px"><span>📣</span><span id="announceText"></span></div>
+  <div id="paused" class="card center small hidden" style="margin-bottom:12px">⏸ The DJ has paused new requests. You can still like songs in the queue.</div>
+
+  <section id="evHero" class="ev-hero hidden"></section>
+  <section id="nowPlaying" class="now-playing hidden" style="margin-bottom:16px" aria-live="polite"></section>
+
+  <div class="tabs" role="tablist" style="margin-bottom:14px">
+    <button class="on" data-tab="queue">Queue <span class="count" id="cQueue"></span></button>
+    <button data-tab="mine">Mine <span class="count" id="cMine"></span></button>
+    <button data-tab="played">Played</button>
+  </div>
+  <p id="bombHint" class="faint small hidden" style="margin:-4px 2px 12px"></p>
+  <section id="list"></section>
+</main>
+
+<div class="fab-bar"><button class="btn" id="requestBtn">Request a song</button></div>
+
+<!-- Name sheet -->
+<div class="sheet-bg" id="bg"></div>
+<div class="sheet" id="nameSheet" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+  <div class="handle"></div>
+  <header><h2 id="nameTitle">What should the DJ call you?</h2></header>
+  <div class="body">
+    <div class="name-brand hidden" id="nameBrand"></div>
+    <p class="muted" style="margin:0 0 14px">No sign-up. Your name shows next to your requests.</p>
+    <form id="nameForm" class="stack">
+      <input id="nameInput" class="input" maxlength="30" placeholder="Your name" autocomplete="given-name" required>
+      <button class="btn block" type="submit">Join the party</button>
+    </form>
+  </div>
+</div>
+
+<!-- Search sheet -->
+<div class="sheet" id="searchSheet" role="dialog" aria-modal="true" aria-labelledby="searchTitle" style="height:92dvh">
+  <div class="handle"></div>
+  <header>
+    <h2 id="searchTitle">Find a song</h2>
+    <button class="icon-btn" data-close aria-label="Close"></button>
+  </header>
+  <div style="padding:0 16px 10px; flex:none">
+    <div style="position:relative">
+      <input id="q" class="input" type="search" placeholder="Song, artist or movie…" autocomplete="off" enterkeyhint="search" style="padding-left:46px">
+      <span style="position:absolute;left:15px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--muted)" id="qIcon"></span>
+    </div>
+  </div>
+  <div class="body" id="results">
+    <div class="empty"><img src="/img/logo-mark.png" alt=""><div>Search millions of tracks.<br>We'll send the DJ the exact song name.</div></div>
+  </div>
+</div>
+
+<!-- Confirm sheet -->
+<div class="sheet" id="confirmSheet" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="handle"></div>
+  <header><h2 id="confirmTitle">Request this song?</h2><button class="icon-btn" data-close aria-label="Close"></button></header>
+  <div class="body stack" id="confirmBody"></div>
+</div>
+
+<!-- Tip sheet -->
+<div class="sheet" id="tipSheet" role="dialog" aria-modal="true" aria-labelledby="tipTitle">
+  <div class="handle"></div>
+  <header><h2 id="tipTitle">Tip the DJ</h2><button class="icon-btn" data-close aria-label="Close"></button></header>
+  <div class="body stack" id="tipBody"></div>
+</div>
+
+<audio id="preview" preload="none"></audio>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/event.js"></script>
+</body>
+</html>

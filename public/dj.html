@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex">
+<title>DJ Console · DropMyBeats</title>
+<link rel="icon" href="/img/icon-192.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap wide">
+    <a href="/"><img src="/img/logo-mark.png" alt="DropMyBeats home"></a>
+    <div class="grow">
+      <div class="row" style="gap:8px"><span class="wordmark">DJ Console</span><span id="roleBadge" class="role-badge hidden"></span></div>
+      <div class="ev-title" id="evTitle"></div>
+    </div>
+    <button class="btn sm dark" id="lockBtn" title="Sign out of this console">Lock</button>
+  </div>
+</header>
+<div id="conn" class="conn hidden">Reconnecting…</div>
+
+<!-- Login gate -->
+<main id="gate" class="wrap hidden" style="padding-top:40px">
+  <div class="card stack center">
+    <img src="/img/logo-mark.png" alt="" style="width:96px;margin:0 auto">
+    <h2 style="font-size:22px">DJ / Manager sign-in</h2>
+    <p class="muted small" style="margin-top:4px">Event <b id="gateCode"></b>. Enter the Manager PIN the admin gave you.<br>Admins: open the admin link saved when you created the event.</p>
+    <form id="gateForm" class="stack">
+      <input id="pin" class="input code-input" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="PIN" aria-label="Manager PIN or admin key">
+      <button class="btn block">Unlock console</button>
+    </form>
+  </div>
+</main>
+
+<main id="app" class="wrap wide hidden">
+  <div class="dj-grid">
+    <section>
+      <div id="welcome" class="announce hidden" style="margin-bottom:12px; display:block">
+        <b>Your event is live! 🎉</b> Show the QR code to the crowd. Save your <a href="#" id="welcomeAdminLink" style="color:inherit">admin link</a> to open this console from another device.
+      </div>
+      <div class="stat-row" id="stats"></div>
+      <div class="row wrap-row" style="margin:14px 0">
+        <button class="btn sm" id="toggleReq"></button>
+        <button class="btn sm dark" id="announceBtn">📣 Announce</button>
+        <a class="btn sm dark" id="screenLink" target="_blank" rel="noopener">🖥 Big screen</a>
+      </div>
+      <section id="nowPlaying" class="now-playing hidden" style="margin-bottom:14px"></section>
+      <div class="tabs" style="margin-bottom:12px">
+        <button class="on" data-tab="queue">Queue <span class="count" id="cQueue"></span></button>
+        <button data-tab="played">Played</button>
+        <button data-tab="removed">Removed</button>
+      </div>
+      <div id="list"></div>
+    </section>
+
+    <aside class="dj-side stack">
+      <details class="panel" open id="sharePanel">
+        <summary>Share with the crowd</summary>
+        <div class="inner stack">
+          <div class="qr-box"><img id="qr" alt="QR code to join the event"></div>
+          <div class="center"><span class="faint small">Event code</span><div class="wordmark" style="font-size:34px;letter-spacing:.25em" id="bigCode"></div></div>
+          <div class="linkline" id="joinLink"></div>
+          <div class="row">
+            <button class="btn sm dark grow" id="copyLink">Copy link</button>
+            <button class="btn sm dark grow" id="shareLink">Share</button>
+            <a class="btn sm dark grow" id="dlQr">QR PNG</a>
+          </div>
+          <p class="faint small" style="margin:0">Phones must be on the same Wi-Fi as this computer, unless the app is hosted online.</p>
+        </div>
+      </details>
+
+      <details class="panel" id="settingsPanel">
+        <summary>Event settings</summary>
+        <div class="inner">
+          <form id="settingsForm" class="stack">
+            <label class="field"><span>Event name</span><input class="input" name="name" maxlength="60"></label>
+            <label class="field"><span>DJ name</span><input class="input" name="djName" maxlength="40"></label>
+            <label class="field"><span>Venue</span><input class="input" name="venue" maxlength="60"></label>
+
+            <h3 style="font-size:15px;margin-top:20px">🎨 Event logo &amp; poster</h3>
+            <div class="brand-slot" data-kind="logo">
+              <img class="thumb" alt="" hidden><div class="thumb" data-empty style="background-image:url(/img/logo-mark.png)"></div>
+              <div class="grow"><b>Event logo</b><div class="faint small">Square works best. Shown on the guest page and big screen.</div>
+                <div class="row" style="margin-top:8px;gap:6px"><label class="btn sm dark file-label">Upload<input type="file" accept="image/*"></label><button type="button" class="btn sm ghost" data-remove hidden>Remove</button></div></div>
+            </div>
+            <div class="brand-slot poster" data-kind="poster">
+              <img class="thumb" alt="" hidden><div class="thumb" data-empty style="background-image:url(/img/logo-mark.png)"></div>
+              <div class="grow"><b>Event poster</b><div class="faint small">The flyer for the night. Shown as a banner for guests, on the big screen, and in WhatsApp link previews.</div>
+                <div class="row" style="margin-top:8px;gap:6px"><label class="btn sm dark file-label">Upload<input type="file" accept="image/*"></label><button type="button" class="btn sm ghost" data-remove hidden>Remove</button></div></div>
+            </div>
+
+            <h3 style="font-size:15px;margin-top:20px">💰 Tipping</h3>
+            <label class="switch"><span>Allow tips / boosts</span><input type="checkbox" name="tipsEnabled"></label>
+            <label class="field"><span>Currency</span><select class="input" name="currencyCode" id="currencySel"></select></label>
+            <label class="field"><span>Quick-pick amounts (optional, comma separated)</span><input class="input" name="tipAmounts" inputmode="decimal" placeholder="Leave blank so guests type any amount"></label>
+            <p class="faint small" style="margin:0">Guests can always enter their own amount. Quick picks just add one-tap buttons.</p>
+            <div id="upiFields" class="stack">
+              <label class="field"><span>UPI ID (optional, INR only)</span><input class="input" name="upiId" placeholder="djname@okhdfcbank"></label>
+              <label class="field"><span>Name shown in UPI app</span><input class="input" name="upiName" maxlength="40"></label>
+            </div>
+
+            <h3 style="font-size:15px;margin-top:20px">💣 TimeBomb</h3>
+            <label class="switch"><span>Requests expire if not played</span><input type="checkbox" name="timeBombEnabled"></label>
+            <div class="row">
+              <label class="field grow"><span>Fuse (minutes)</span><input class="input" type="number" min="1" max="240" name="timeBombMinutes"></label>
+              <label class="field grow"><span>Likes to defuse (0 = off)</span><input class="input" type="number" min="0" max="1000" name="defuseLikes"></label>
+            </div>
+            <p class="faint small" style="margin:0">Requests that are about to explode get a priority boost. Tips, pins and enough likes defuse the bomb.</p>
+
+            <h3 style="font-size:15px;margin-top:20px">🎛 Requests</h3>
+            <label class="field"><span>Max waiting requests per person (0 = unlimited)</span><input class="input" type="number" min="0" max="50" name="maxOpenRequestsPerUser"></label>
+            <label class="switch"><span>Allow explicit tracks</span><input type="checkbox" name="allowExplicit"></label>
+
+            <h3 style="font-size:15px;margin-top:20px">👥 Managers</h3>
+            <label class="field"><span>Manager PIN (4–8 digits; blank = no managers)</span><input class="input" name="managerPin" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+            <p class="faint small" style="margin:0">Managers open <span class="linkline" id="mgrLink" style="display:inline"></span> and enter this PIN. They can run the queue but not change settings.</p>
+
+            <button class="btn block" type="submit" style="margin-top:18px">Save settings</button>
+          </form>
+          <div class="stack" style="margin-top:22px">
+            <button class="btn sm dark block" id="copyAdmin">Copy admin link (keep it private)</button>
+            <button class="btn sm danger block" id="clearHist">Clear played &amp; removed history</button>
+            <button class="btn sm danger block" id="endEvent"></button>
+          </div>
+        </div>
+      </details>
+    </aside>
+  </div>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/dj.js"></script>
+</body>
+</html>

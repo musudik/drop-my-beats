@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>DropMyBeats · Big screen</title>
+<link rel="icon" href="/img/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<main class="screen">
+  <section class="qr-side stack">
+    <img id="brandMark" src="/img/logo-anim.gif" alt="DropMyBeats" style="width:min(40vw,22vh,200px);margin:0 auto -8px">
+    <img id="evLogo" class="ev-logo hidden" alt="">
+    <h1 id="evName"></h1>
+    <div class="muted" style="font-size:clamp(16px,1.6vw,22px)">Scan to request a song</div>
+    <div class="qr-box"><img id="qr" alt="QR code to join"></div>
+    <div><span class="muted">or go to</span> <b id="url" style="color:var(--orange-2)"></b></div>
+    <div class="big-code" id="code"></div>
+  </section>
+  <section>
+    <img id="posterView" class="screen-poster hidden" alt="Event poster">
+    <div id="queueView">
+    <div id="announce" class="announce hidden" style="margin-bottom:16px;font-size:clamp(16px,1.5vw,22px)"><span>📣</span><span id="announceText"></span></div>
+    <section id="nowPlaying" class="now-playing hidden" style="margin-bottom:20px"></section>
+    <h2 style="font-size:clamp(18px,1.8vw,26px);margin-bottom:12px">Up next <span class="muted" id="count" style="font-weight:700"></span></h2>
+    <div id="list"></div>
+    </div>
+    <div class="row faint small hidden" id="poweredBy" style="justify-content:center;margin-top:18px;gap:8px"><img src="/img/logo-mark.png" alt="" style="width:26px">Powered by DropMyBeats</div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script>
+(() => {
+  const { $, esc, art, codeFromPath, setServerTime, bombPill } = DMB;
+  const code = codeFromPath();
+  const socket = io({ transports: ['websocket', 'polling'] });
+  socket.on('connect', () => socket.emit('screen', { code }, (res) => res.error ? ($('#evName').textContent = 'Event not found') : render(res.state)));
+  socket.on('state', render);
+  fetch('/api/events/' + code + '/link').then((r) => r.json()).then((j) => {
+    $('#qr').src = '/api/events/' + code + '/qr.svg';
+    $('#url').textContent = j.url.replace(/^https?:\/\//, '');
+    $('#code').textContent = code;
+  });
+  // With a poster, alternate the right side between the poster and the queue
+  let poster = '', showPoster = false;
+  setInterval(() => {
+    if (!poster) return;
+    showPoster = !showPoster;
+    $('#posterView').classList.toggle('hidden', !showPoster);
+    $('#queueView').classList.toggle('hidden', showPoster);
+    (showPoster ? $('#posterView') : $('#queueView')).classList.add('fade-in');
+  }, 15000);
+  function render(s) {
+    setServerTime(s.serverTime);
+    $('#evName').textContent = s.name;
+    const logo = $('#evLogo');
+    if (s.logoUrl && logo.getAttribute('src') !== s.logoUrl) logo.src = s.logoUrl;
+    logo.classList.toggle('hidden', !s.logoUrl);
+    $('#brandMark').classList.toggle('hidden', !!s.logoUrl);
+    $('#poweredBy').classList.toggle('hidden', !s.logoUrl);
+    poster = s.posterUrl || '';
+    if (poster && $('#posterView').getAttribute('src') !== poster) $('#posterView').src = poster;
+    if (!poster) { showPoster = false; $('#posterView').classList.add('hidden'); $('#queueView').classList.remove('hidden'); }
+    $('#announce').classList.toggle('hidden', !s.announcement);
+    $('#announceText').textContent = s.announcement;
+    const np = s.nowPlaying;
+    $('#nowPlaying').classList.toggle('hidden', !np);
+    if (np) $('#nowPlaying').innerHTML = `<div class="label"><span class="eq"><i></i><i></i><i></i></span> Now playing</div>
+      <div class="np">${art(np.artwork)}<div class="grow"><div class="t" style="font-size:clamp(20px,2.2vw,32px)">${esc(np.title)}</div><div class="muted">${esc(np.artist)} · for ${esc(np.by)}</div></div></div>`;
+    $('#count').textContent = s.queue.length ? '(' + s.queue.length + ')' : '';
+    $('#list').innerHTML = s.queue.length ? s.queue.slice(0, 8).map((r, i) => `<div class="song"><div class="rank">${i + 1}</div>${art(r.artwork)}
+      <div class="meta"><div class="t">${esc(r.title)}</div><div class="a">${esc(r.artist)}</div><div class="by"><span>${esc(r.by)}</span>${bombPill(r, s.settings)}</div></div>
+      <div class="like-btn" style="cursor:default">♥<span>${r.likes}</span></div></div>`).join('')
+      : '<div class="empty">No requests yet. Scan the code and be the first!</div>';
+  }
+})();
+</script>
+</body>
+</html>
