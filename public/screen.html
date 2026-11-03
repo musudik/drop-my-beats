@@ -32,15 +32,18 @@
     <div class="row faint small hidden" id="poweredBy" style="justify-content:center;margin-top:18px;gap:8px"><img src="/img/logo-mark.png" alt="" style="width:26px">Powered by DropMyBeats</div>
   </section>
 </main>
-<script src="/socket.io/socket.io.js"></script>
 <script src="/js/common.js"></script>
+<script src="/js/live.js"></script>
 <script>
 (() => {
   const { $, esc, art, codeFromPath, setServerTime, bombPill } = DMB;
   const code = codeFromPath();
-  const socket = io({ transports: ['websocket', 'polling'] });
-  socket.on('connect', () => socket.emit('screen', { code }, (res) => res.error ? ($('#evName').textContent = 'Event not found') : render(res.state)));
-  socket.on('state', render);
+  DMB.live.connect({
+    code,
+    mode: 'screen',
+    onState: (s, fresh) => render(s, fresh),
+    onNotFound: () => { $('#evName').textContent = 'Event not found'; },
+  });
   fetch('/api/events/' + code + '/link').then((r) => r.json()).then((j) => {
     $('#qr').src = '/api/events/' + code + '/qr.svg';
     $('#url').textContent = j.url.replace(/^https?:\/\//, '');
@@ -55,8 +58,8 @@
     $('#queueView').classList.toggle('hidden', showPoster);
     (showPoster ? $('#posterView') : $('#queueView')).classList.add('fade-in');
   }, 15000);
-  function render(s) {
-    setServerTime(s.serverTime);
+  function render(s, fresh) {
+    if (fresh || !window._skewSet) { setServerTime(s.serverTime); window._skewSet = true; }
     $('#evName').textContent = s.name;
     const logo = $('#evLogo');
     if (s.logoUrl && logo.getAttribute('src') !== s.logoUrl) logo.src = s.logoUrl;

@@ -44,18 +44,45 @@ Open **http://localhost:3000** and click **Host an event**. The console prints t
 * **Controls**: pause or open requests, a per-person limit on waiting requests, an explicit-content filter, announcements shown to everyone, and end or re-open the event.
 * Guests can add the app to their home screen, since it ships a web app manifest.
 
-## Hosting online (optional)
+## Deploy to Vercel
 
-To let guests use mobile data instead of the venue Wi-Fi, deploy to any host that runs a long-lived Node server with WebSockets, such as Render, Railway, Fly.io or a VPS. Pure serverless hosts like Vercel won't work. Set `PUBLIC_URL=https://your-domain` so the QR code points to the public address. Put the app behind HTTPS in production.
+The app runs on Vercel with two differences from running it locally:
+
+* **Storage**: Vercel's disk is read-only, so events, logos and posters are kept in **Upstash Redis** (free tier: 500K commands/month, 256 MB).
+* **Live updates**: Vercel can't hold WebSocket connections, so phones check for changes every 2.5–3 seconds. The shared queue is served from Vercel's CDN cache, so hundreds of guests polling cost almost nothing.
+
+Steps:
+
+1. Push this repo to GitHub, including `vercel.json`, `lib/` and `public/js/live.js`.
+2. On vercel.com, go to **Add New → Project** and import the repo.
+   * **Framework Preset**: Express (`vercel.json` sets this; if the dashboard shows "Other", change it to Express).
+   * Leave Root Directory, Build Command and Output Directory empty or at their defaults.
+3. Click **Deploy**. The first deploy works, but creating an event will say storage isn't set up yet.
+4. In the project, open **Storage → Create Database → Upstash for Redis** (Marketplace), pick the free plan and a region near your guests (e.g. Mumbai `ap-south-1`), then **Connect** it to the project for all environments. This adds `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+5. Go to **Deployments → ⋯ → Redeploy** so the new variables are picked up.
+6. Optional: add your domain under **Settings → Domains**. QR codes use whatever address the DJ console is opened on. Set `PUBLIC_URL=https://your-domain` in **Settings → Environment Variables** to always use one fixed address.
+
+Check it works: open `https://your-app.vercel.app/api/config`. It should show `{"realtime":"poll","storage":"redis"}`.
+
+Data in Redis expires 60 days after an event's last change.
+
+## Hosting on Render / Railway / a VPS (alternative)
+
+Any host that runs a long-lived Node server gets instant Socket.IO updates and stores data in `data/`. Use `npm install` / `npm start` and attach a persistent disk with `DATA_FILE=/your/disk/events.json`. You can also set the Upstash variables to use Redis there.
 
 ## Project layout
 
 ```
-server.js            Express + Socket.IO server, storage, search, TimeBomb ticker
+server.js            Entry point: starts the local server with Socket.IO; on Vercel exports the Express app
+lib/core.js          Event logic: requests, likes, tips, TimeBomb, roles, settings
+lib/store.js         Storage: data/events.json locally, Upstash Redis when its variables are set
+lib/app.js           HTTP routes (pages, API, uploads, search, QR codes)
+vercel.json          Tells Vercel this is an Express app
 public/index.html    Landing (join / host)
 public/event.html    Guest view          → public/js/event.js
 public/dj.html       DJ / admin console  → public/js/dj.js
 public/screen.html   Projector view
+public/js/live.js    Live connection (Socket.IO locally, polling on Vercel)
 public/js/common.js  Shared helpers
 public/css/app.css   Styles (mobile-first, brand orange #F68712 on black)
 public/img/          Logo (PNG + animated GIF) and app icons

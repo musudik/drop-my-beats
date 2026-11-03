@@ -14,41 +14,54 @@
   let settingsDirty = false;
 
   $('#gateCode').textContent = code;
-  const socket = io({ transports: ['websocket', 'polling'] });
-  const emit = (ev, data) => new Promise((resolve) => socket.timeout(8000).emit(ev, data, (err, res) => resolve(err ? { error: 'No connection, try again' } : res)));
+  let live = null;
+  const emit = async (type, data) => (live ? live.act(type, data) : { error: 'Not connected yet' });
 
   function showGate(msg) {
+    if (live) { live.stop(); live = null; }
     $('#app').classList.add('hidden');
     $('#gate').classList.remove('hidden');
     $('#lockBtn').classList.add('hidden');
     if (msg) toast(msg, true);
   }
+  function notFound() {
+    $('#gate').innerHTML = '<div class="empty"><h2 style="font-size:22px">Event not found</h2><a class="btn" href="/">Home</a></div>';
+    showGate();
+  }
   async function auth() {
     if (!key) return showGate();
-    const res = await emit('dj:auth', { code, key });
-    if (res.error) {
-      if (res.error === 'Event not found') {
-        $('#gate').innerHTML = '<div class="empty"><h2 style="font-size:22px">Event not found</h2><a class="btn" href="/">Home</a></div>';
-        return showGate();
-      }
-      store.del('key:' + code);
-      key = '';
-      return showGate(res.error);
+    let r, j;
+    try {
+      r = await fetch(`/api/events/${code}/dj`, { headers: { 'x-dmb-key': key } });
+      j = await r.json();
+    } catch {
+      return showGate('No connection, try again');
     }
-    role = res.role;
+    if (r.status === 404) return notFound();
+    if (!r.ok) {
+      if (r.status === 403) { store.del('key:' + code); key = ''; }
+      return showGate(j.error);
+    }
+    role = j.role;
     $('#gate').classList.add('hidden');
     $('#app').classList.remove('hidden');
     $('#lockBtn').classList.remove('hidden');
     $('#roleBadge').textContent = role;
     $('#roleBadge').className = 'role-badge ' + role;
     $('#settingsPanel').classList.toggle('hidden', role !== 'admin');
-    render(res.state, true);
+    render(j.state, true);
     loadShare();
+    live = DMB.live.connect({
+      code,
+      mode: 'dj',
+      key: () => key,
+      onState: (s) => render(s),
+      onStatus: (ok) => $('#conn').classList.toggle('hidden', ok),
+      onAuthError: (msg) => { store.del('key:' + code); key = ''; showGate(msg || 'Please sign in again'); },
+      onNotFound: notFound,
+    });
   }
-  socket.on('connect', () => { $('#conn').classList.add('hidden'); auth(); });
-  socket.on('disconnect', () => $('#conn').classList.remove('hidden'));
-  socket.on('state', (s) => render(s));
-  socket.on('kicked', () => { store.del('key:' + code); key = ''; showGate('The admin removed manager access'); });
+  auth();
 
   $('#gateForm').onsubmit = (e) => {
     e.preventDefault();

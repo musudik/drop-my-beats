@@ -19,8 +19,8 @@
     $('#bg').classList.add('open');
     $('#' + id).classList.add('open');
   }
-  function closeSheets() {
-    if (!name) return; // name required before anything else
+  function closeSheets(force) {
+    if (!name && force !== true) return; // name required before anything else
     $$('.sheet.open').forEach((s) => s.classList.remove('open'));
     $('#bg').classList.remove('open');
     stopPreview();
@@ -28,25 +28,31 @@
   $('#bg').onclick = closeSheets;
   document.addEventListener('keydown', (e) => e.key === 'Escape' && closeSheets());
 
-  /* ---------------- socket ---------------- */
-  const socket = io({ transports: ['websocket', 'polling'] });
-  function join() {
-    socket.emit('join', { code, userId: uid, name }, (res) => {
-      if (res.error) {
-        $('#main').innerHTML = `<div class="empty"><img src="/img/logo-mark.png" alt=""><h2 style="font-size:22px">Event not found</h2><p>Check the code or scan the QR again.</p><a class="btn" href="/">Back home</a></div>`;
-        $('.fab-bar').classList.add('hidden');
-        return;
-      }
-      render(res.state);
-    });
+  /* ---------------- live connection ---------------- */
+  let myHash = store.get('hash:' + code, '');
+  const live = DMB.live.connect({
+    code,
+    mode: 'guest',
+    identity: () => ({ userId: uid, name }),
+    onState: (s, fresh) => render(s, fresh),
+    onStatus: (ok) => $('#conn').classList.toggle('hidden', ok),
+    onNotFound: () => {
+      $('#main').innerHTML = `<div class="empty"><img src="/img/logo-mark.png" alt=""><h2 style="font-size:22px">Event not found</h2><p>Check the code or scan the QR again.</p><a class="btn" href="/">Back home</a></div>`;
+      $('.fab-bar').classList.add('hidden');
+      closeSheets(true);
+    },
+  });
+  async function emit(type, data) {
+    const res = await live.act(type, data);
+    if (res.userHash && res.userHash !== myHash) { myHash = res.userHash; store.set('hash:' + code, myHash); if (state) render(state); }
+    return res;
   }
-  socket.on('connect', () => { $('#conn').classList.add('hidden'); join(); });
-  socket.on('disconnect', () => $('#conn').classList.remove('hidden'));
-  socket.on('state', render);
-
-  function emit(ev, data) {
-    return new Promise((resolve) => socket.timeout(8000).emit(ev, data, (err, res) => resolve(err ? { error: 'No connection — try again' } : res)));
+  async function join() {
+    if (!name) return;
+    const res = await emit('join');
+    if (res.error) toast(res.error, true);
   }
+  join();
 
   /* ---------------- name ---------------- */
   if (!name) openSheet('nameSheet');
@@ -70,10 +76,13 @@
     renderList();
   });
 
-  function render(s) {
+  function render(s, fresh) {
     if (!s) return;
+    // Mark my requests and likes (the shared state only carries anonymous tags)
+    const mark = (r) => { r.mine = !!myHash && r.byH === myHash; r.liked = !!myHash && (r.likeH || []).includes(myHash); };
+    s.queue.forEach(mark); s.played.forEach(mark); if (s.nowPlaying) mark(s.nowPlaying);
     state = s;
-    setServerTime(s.serverTime);
+    if (fresh) setServerTime(s.serverTime);
     document.title = s.name + ' · DropMyBeats';
     $('#evTitle').textContent = [s.name, s.djName && 'with ' + s.djName].filter(Boolean).join(' ');
     renderBrand(s);
@@ -213,6 +222,12 @@
       const j = await r.json();
       if (seq !== searchSeq) return;
       lastResults = j.results || [];
+      // Cloud servers are sometimes blocked by Apple: ask iTunes straight from the phone instead
+      if (!lastResults.length && j.source !== 'mock') {
+        lastResults = await itunesFromBrowser(q).catch(() => []);
+        if (seq !== searchSeq) return;
+        if (lastResults.length) j.offline = false;
+      }
       if (!lastResults.length) {
         $('#results').innerHTML = `<div class="empty">${j.offline ? 'Song search is offline right now.' : 'No matches. Try a different spelling, or add the artist.'}</div>${manualForm(q)}`;
         return;
@@ -236,6 +251,24 @@
     } catch {
       $('#results').innerHTML = `<div class="empty">Search failed. Check your connection.</div>${manualForm(q)}`;
     }
+  }
+
+  function itunesFromBrowser(q) {
+    return new Promise((ok, bad) => {
+      const cb = '_dmbIt' + Date.now();
+      const sc = document.createElement('script');
+      const done = (v) => { delete window[cb]; sc.remove(); clearTimeout(t); v instanceof Error ? bad(v) : ok(v); };
+      const t = setTimeout(() => done(new Error('timeout')), 7000);
+      window[cb] = (j) => done((j.results || []).map((x) => ({
+        source: 'itunes', sourceId: String(x.trackId), title: x.trackName, artist: x.artistName, album: x.collectionName,
+        artwork: (x.artworkUrl100 || '').replace('100x100bb', '300x300bb'), previewUrl: x.previewUrl || '',
+        duration: x.trackTimeMillis ? Math.round(x.trackTimeMillis / 1000) : 0, explicit: x.trackExplicitness === 'explicit',
+        year: x.releaseDate ? x.releaseDate.slice(0, 4) : '', trackUrl: x.trackViewUrl || '',
+      })));
+      sc.onerror = () => done(new Error('failed'));
+      sc.src = `https://itunes.apple.com/search?media=music&entity=song&limit=25&country=IN&term=${encodeURIComponent(q)}&callback=${cb}`;
+      document.head.appendChild(sc);
+    });
   }
 
   function manualForm(q) {
