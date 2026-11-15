@@ -26,7 +26,8 @@
 .ambient img.on { opacity: 0.9; }
 .ambient::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 38%, #000 78%); }
 @keyframes drift { from { transform: scale(1) translate3d(-2%, -1%, 0) rotate(0deg); } to { transform: scale(1.12) translate3d(3%, 2%, 0) rotate(6deg); } }
-.stage-page > main { position: relative; z-index: 2; }
+/* no z-index here: the animated logo's black square must blend with the ambient colours behind */
+.stage-page > main { position: relative; }
 .stage-page > .topbar { z-index: 30; }
 
 .glass-top { background: rgba(0,0,0,.35) !important; border-bottom: 1px solid var(--glass-line) !important; }

@@ -13,7 +13,7 @@
 <style>
   /* Big screen (TV / projector): wheel of covers · turntable · QR */
   html, body { height: 100%; overflow: hidden; }
-  .bs { position: relative; z-index: 2; height: 100vh; display: grid; grid-template-columns: 30vw 1fr 27vw; align-items: center; }
+  .bs { position: relative; height: 100vh; display: grid; grid-template-columns: 30vw 1fr 27vw; align-items: center; }
 
   /* the wheel: played songs above, up next below, the next song pointing at the turntable */
   .wheel { position: relative; height: 100vh; --R: 46vh; }
@@ -51,11 +51,12 @@
   .np > * { animation: rise .8s cubic-bezier(.2,.8,.2,1) both; }
 
   /* right: join */
-  .join { display: grid; justify-items: center; align-content: center; gap: 1.8vh; padding-right: 3vw; text-align: center; }
-  .join .ev-logo { width: 11vh; height: 11vh; border-radius: 22px; object-fit: cover; }
+  .join { display: grid; justify-items: center; align-content: center; gap: 1.3vh; padding-right: 3vw; text-align: center; }
+  .join .brand-gif { width: min(26vh, 22vw); margin-bottom: -1vh; }
+  .join .ev-logo { width: 8vh; height: 8vh; border-radius: 18px; object-fit: cover; }
   .join h1 { font-size: 3.6vh; line-height: 1.1; text-wrap: balance; }
   .join .sub { color: var(--smoke); font-size: 1.9vh; }
-  .join .qr-box { width: min(34vh, 23vw); max-width: none; padding: 1.6vh; border-radius: 24px; box-shadow: 0 0 0 6px rgba(246,135,18,.25), 0 20px 60px rgba(0,0,0,.6); }
+  .join .qr-box { width: min(30vh, 22vw); max-width: none; padding: 1.6vh; border-radius: 24px; box-shadow: 0 0 0 6px rgba(246,135,18,.25), 0 20px 60px rgba(0,0,0,.6); }
   .join .scan { font-family: var(--display); font-weight: 800; font-size: 2.6vh; }
   .join .code { font-family: var(--display); font-weight: 900; font-size: 6vh; letter-spacing: .18em; color: var(--ember); line-height: 1; }
   .join .url { color: var(--flare); font-weight: 700; font-size: 1.8vh; }
@@ -100,6 +101,7 @@
   </section>
 
   <section class="join">
+    <img class="dmb-anim brand-gif" src="/img/logo-anim.gif" alt="DropMyBeats">
     <img id="evLogo" class="ev-logo hidden" alt="">
     <h1 id="evName"></h1>
     <div class="sub" id="evSub"></div>

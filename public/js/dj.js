@@ -114,9 +114,7 @@
     setServerTime(s.serverTime);
     document.title = 'DJ · ' + s.name;
     $('#evTitle').textContent = `${s.name} · ${s.code}${s.status === 'ended' ? ' · ENDED' : ''}`;
-    const tb = $('.topbar a img');
-    tb.src = s.logoUrl || '/img/logo-mark.png';
-    tb.classList.toggle('ev-mark', !!s.logoUrl);
+    // the animated DropMyBeats logo always stays in the DJ console header
     const st = s.stats;
     $('#stats').innerHTML = [
       [s.queue.length, 'in queue'], [st.participants, 'guests'], [st.played, 'played'],
@@ -151,7 +149,7 @@
     const s = state;
     let items = tab === 'queue' ? s.queue : tab === 'played' ? s.played : s.rejected;
     if (!items.length) {
-      $('#list').innerHTML = `<div class="empty"><img src="/img/logo-mark.png" alt=""><div>${tab === 'queue' ? 'No requests waiting. Share the QR code to get the crowd going!' : 'Nothing here yet.'}</div></div>`;
+      $('#list').innerHTML = `<div class="empty"><img class="dmb-anim" src="/img/logo-anim.gif" alt=""><div>${tab === 'queue' ? 'No requests waiting. Share the QR code to get the crowd going!' : 'Nothing here yet.'}</div></div>`;
       return;
     }
     DMB.stage.flip($('#list'), () => { $('#list').innerHTML = items.map((r, i) => djRow(r, i)).join(''); });

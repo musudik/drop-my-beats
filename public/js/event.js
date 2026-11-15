@@ -38,7 +38,7 @@
     onState: (s, fresh) => render(s, fresh),
     onStatus: (ok) => $('#conn').classList.toggle('hidden', ok),
     onNotFound: () => {
-      $('#main').innerHTML = `<div class="empty" style="padding-top:80px"><img src="/img/logo-mark.png" alt=""><h2 style="font-size:22px">Event not found</h2><p>Check the code or scan the QR again.</p><a class="btn" href="/">Back home</a></div>`;
+      $('#main').innerHTML = `<div class="empty" style="padding-top:80px"><img class="dmb-anim" src="/img/logo-anim.gif" alt="DropMyBeats"><h2 style="font-size:22px">Event not found</h2><p>Check the code or scan the QR again.</p><a class="btn" href="/">Back home</a></div>`;
       $('.dock').classList.add('hidden');
       closeSheets(true);
     },
@@ -187,7 +187,7 @@
     const draw = () => {
       if (!items.length) {
         const msg = tab === 'queue' ? 'No requests yet. Tap + to drop the first beat.' : tab === 'mine' ? "You haven't requested anything yet. Tap + to pick a song." : 'Nothing has been played from requests yet.';
-        $('#list').innerHTML = `<div class="empty"><img src="/img/logo-mark.png" alt=""><div>${msg}</div></div>`;
+        $('#list').innerHTML = `<div class="empty"><img class="dmb-anim" src="/img/logo-anim.gif" alt=""><div>${msg}</div></div>`;
         return;
       }
       $('#list').innerHTML = items.map((r, i) => row(r, i)).join('');

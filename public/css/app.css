@@ -302,6 +302,13 @@ details.panel > .inner { padding: 0 18px 18px; }
 .fade-in { animation: fadein .6s ease; }
 @keyframes fadein { from { opacity: 0 } }
 
+/* ---------- Animated DropMyBeats logo (logo-anim.gif) ---------- */
+.dmb-anim { display: block; mix-blend-mode: screen; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 44%; }
+.brand-bar { display: flex; justify-content: center; margin: 4px 0 -4px; }
+.brand-bar .dmb-anim { width: 128px; }
+.empty img.dmb-anim { width: 150px; opacity: 1; margin: 0 auto 4px; }
+.topbar img.dmb-anim { width: 72px; height: 54px; }
+
 /* ---------- Footer + About ---------- */
 .site-foot { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 16px 24px; font-size: 14px; color: var(--muted); text-align: center; }
 .site-foot a { color: var(--orange-2); font-weight: 700; text-decoration: none; }
