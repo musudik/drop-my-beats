@@ -55,8 +55,11 @@
     <div id="myEventsList"></div>
   </section>
 
-  <p class="center faint small" style="margin:36px 0 24px">DropMyBeats</p>
+  <section class="about-card" id="about" style="margin-top:22px"></section>
 </main>
+<footer class="site-foot">
+  <span>Powered by <a href="https://www.fkgpt.dev" target="_blank" rel="noopener">www.fkgpt.dev</a></span>
+</footer>
 
 <script src="/js/common.js"></script>
 <script>
@@ -114,6 +117,8 @@ $$('.brand-pick input').forEach((inp) => inp.onchange = () => {
   lbl.querySelector('span').hidden = !!f;
   if (f) img.src = URL.createObjectURL(f);
 });
+
+$('#about').innerHTML = DMB.ABOUT;
 
 const mine = store.get('myEvents', []);
 if (mine.length) {

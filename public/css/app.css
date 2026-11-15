@@ -302,4 +302,22 @@ details.panel > .inner { padding: 0 18px 18px; }
 .fade-in { animation: fadein .6s ease; }
 @keyframes fadein { from { opacity: 0 } }
 
+/* ---------- Footer + About ---------- */
+.site-foot { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 16px 24px; font-size: 14px; color: var(--muted); text-align: center; }
+.site-foot a { color: var(--orange-2); font-weight: 700; text-decoration: none; }
+.site-foot a:hover, .link-btn:hover { text-decoration: underline; }
+.link-btn { background: none; border: 0; padding: 4px 8px; color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; }
+.about-card { background: var(--card); border: 1px solid #222; border-radius: var(--radius); padding: 20px; }
+.about-card h2 { font-size: 20px; margin-bottom: 8px; }
+.about-card p { margin: 0 0 10px; color: var(--muted); }
+.about-card ul { margin: 0 0 12px; padding-left: 20px; color: var(--muted); }
+.about-card li + li { margin-top: 4px; }
+.about-card .by { display: flex; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid #262626; color: var(--text); }
+.about-card .by img { width: 36px; height: 36px; }
+.about-card .by a { color: var(--orange-2); font-weight: 800; text-decoration: none; }
+.about-modal { position: fixed; inset: 0; z-index: 110; background: rgba(0,0,0,.72); display: grid; place-items: end center; padding: 16px; animation: fadein .2s ease; }
+.about-modal .about-card { width: 100%; max-width: 480px; max-height: 88dvh; overflow: auto; margin-bottom: env(safe-area-inset-bottom, 0px); position: relative; }
+.about-modal .icon-btn { position: absolute; top: 12px; right: 12px; }
+@media (min-width: 640px) { .about-modal { place-items: center; } }
+
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

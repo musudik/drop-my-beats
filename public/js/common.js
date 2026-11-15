@@ -165,6 +165,33 @@ window.DMB = (() => {
     return m && m[1] ? [m[1], m[2] || m[3]] : [t, ''];
   }
 
-  return { splitTitle, $, $$, esc, store, userId, toast, icons, fmtLeft, fmtDur, ago, art, codeFromPath, setServerTime, now, bombPill, copy, shrinkImage, uploadMedia, removeMedia, viewImage,
+  /* About DropMyBeats (opened from any [data-about] link) */
+  const ABOUT = `
+    <h2>About DropMyBeats</h2>
+    <p>DropMyBeats lets everyone at the party have a say in the music, live from their phone.</p>
+    <ul>
+      <li>Scan the QR code, enter your name and request any song. No app or sign-up needed.</li>
+      <li>Give your +1 to the crowd's favourites to push them up the queue.</li>
+      <li>See what's playing, what's up next and what has already been played.</li>
+      <li>The DJ gets one ranked queue with the exact song names, so the right track plays.</li>
+    </ul>
+    <div class="by"><img src="/img/logo-mark.png" alt=""><div>Powered by <a href="https://www.fkgpt.dev" target="_blank" rel="noopener">www.fkgpt.dev</a></div></div>`;
+  function showAbout() {
+    const m = document.createElement('div');
+    m.className = 'about-modal';
+    m.setAttribute('role', 'dialog');
+    m.setAttribute('aria-modal', 'true');
+    m.setAttribute('aria-label', 'About DropMyBeats');
+    m.innerHTML = `<div class="about-card">${ABOUT}<button class="icon-btn" aria-label="Close">${icons.close}</button></div>`;
+    const close = () => { m.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (e) => e.key === 'Escape' && close();
+    m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.icon-btn')) close(); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(m);
+    m.querySelector('.icon-btn').focus();
+  }
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-about]')) { e.preventDefault(); showAbout(); } });
+
+  return { ABOUT, showAbout, splitTitle, $, $$, esc, store, userId, toast, icons, fmtLeft, fmtDur, ago, art, codeFromPath, setServerTime, now, bombPill, copy, shrinkImage, uploadMedia, removeMedia, viewImage,
     sameSong, hue, initials, genBg, bigArt, cover, avatar };
 })();
