@@ -30,8 +30,15 @@
 .stage-page > main { position: relative; }
 .stage-page > .topbar { z-index: 30; }
 
-.glass-top { background: rgba(0,0,0,.35) !important; border-bottom: 1px solid var(--glass-line) !important; }
-.brand-link img { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; }
+/* solid black so the animated logo's black square disappears into it */
+.glass-top { background: #000 !important; border-bottom: 1px solid var(--glass-line) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.stage-page .topbar .wrap { gap: 8px; }
+.brand-link { flex: none; display: block; margin-left: -6px; }
+.brand-link img.dmb-anim { width: 60px; height: 45px; }
+.ev-mini { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; flex: none; background: #fff; }
+.icon-chip { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--glass-line); background: rgba(255,255,255,.06); color: var(--bone); }
+.icon-chip svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.empty-line { padding: 18px 16px; border-radius: 18px; border: 1px dashed rgba(255,255,255,.14); color: var(--smoke); text-align: center; font-size: 15px; }
 .ev-name { font-family: var(--display); font-weight: 800; font-size: 16px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip-btn { border: 1px solid var(--glass-line); background: rgba(255,255,255,.06); color: var(--bone); border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer; }
 
@@ -40,12 +47,12 @@
 .stage-page .announce { margin: 8px 0; }
 
 /* ---------- The deck (hero) ---------- */
-.deck { position: relative; min-height: 318px; margin: 4px -16px 6px; padding: 26px 16px 18px; overflow: hidden; }
-.deck-text { position: relative; z-index: 3; width: 58%; text-shadow: 0 2px 18px rgba(0,0,0,.6); min-height: 270px; display: flex; flex-direction: column; justify-content: center; }
+.deck { position: relative; min-height: 276px; margin: 0 -16px 2px; padding: 14px 16px 10px; overflow: hidden; }
+.deck-text { position: relative; z-index: 3; width: 58%; text-shadow: 0 2px 18px rgba(0,0,0,.6); min-height: 250px; display: flex; flex-direction: column; justify-content: center; }
 .deck-text .np-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--ember); }
 .deck-text .np-title {
   font-family: var(--display); font-weight: 900; line-height: 1.02; letter-spacing: -0.02em;
-  font-size: clamp(26px, 8vw, 42px); margin: 10px 0 4px; overflow-wrap: anywhere; hyphens: auto;
+  font-size: clamp(26px, 7.6vw, 42px); margin: 8px 0 4px; overflow-wrap: anywhere; hyphens: auto;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   text-wrap: balance;
 }
@@ -59,7 +66,8 @@
 .deck-text > *:nth-child(4) { animation-delay: .18s; } .deck-text > *:nth-child(5) { animation-delay: .24s; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
-.turntable { position: absolute; z-index: 2; width: 290px; height: 290px; right: -72px; top: 26px; }
+.turntable { position: absolute; z-index: 2; width: 264px; height: 264px; right: -70px; top: 14px; }
+@media (min-width: 420px) { .turntable { width: 290px; height: 290px; } }
 @media (min-width: 520px) { .turntable { right: -40px; } }
 @media (min-width: 640px) { .deck-text { width: 50%; } .turntable { right: 0; } }
 
@@ -116,7 +124,7 @@
 .dj-song .art { width: 56px; height: 56px; border-radius: 12px; }
 
 /* ---------- Section heads ---------- */
-.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 18px 2px 10px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 12px 2px 10px; }
 .sec-head h2 { font-size: 20px; }
 
 /* ---------- Up next: tall cards ---------- */
@@ -128,7 +136,7 @@
 .cards::-webkit-scrollbar { display: none; }
 .ucard {
   --d: 0;
-  position: relative; flex: none; width: min(60vw, 232px); aspect-ratio: 3 / 4; border-radius: 28px; overflow: hidden;
+  position: relative; flex: none; width: min(44vw, 210px); aspect-ratio: 4 / 5; border-radius: 24px; overflow: hidden;
   scroll-snap-align: center; background: var(--groove);
   transform: scale(calc(1 - var(--d) * .1)); opacity: calc(1 - var(--d) * .35);
   box-shadow: 0 18px 40px rgba(0,0,0,.5); will-change: transform;
@@ -137,10 +145,10 @@
 .ucard > .gen { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 64px; color: rgba(255,255,255,.9); }
 .ucard::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.25) 0%, transparent 30%, transparent 45%, rgba(0,0,0,.85) 100%); pointer-events: none; }
 .ucard .rank { position: absolute; z-index: 2; left: 12px; top: 12px; width: auto; min-width: 38px; height: 30px; padding: 0 10px; border-radius: 999px; display: grid; place-items: center; background: rgba(0,0,0,.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; font-family: var(--display); font-weight: 900; font-size: 14px; }
-.ucard .plus1 { position: absolute; z-index: 2; right: 10px; top: 10px; width: 52px; height: 52px; border-radius: 18px; background: rgba(0,0,0,.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.ucard .plus1 { position: absolute; z-index: 2; right: 8px; top: 8px; width: 46px; height: 46px; border-radius: 15px; background: rgba(0,0,0,.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .ucard .plus1.on { background: var(--ember); }
 .ucard .info { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 12px; }
-.ucard .info .t { font-family: var(--display); font-weight: 800; font-size: 18px; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ucard .info .t { font-family: var(--display); font-weight: 800; font-size: 16px; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .ucard .info .a { font-size: 13px; color: rgba(255,255,255,.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 .ucard .info .by { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: rgba(255,255,255,.8); flex-wrap: wrap; }
 .avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 800; font-size: 11px; color: #000; flex: none; }

@@ -19,18 +19,18 @@
 
 <header class="topbar glass-top">
   <div class="wrap">
-    <a href="/" class="brand-link"><img src="/img/logo-mark.png" alt="DropMyBeats home"></a>
+    <a href="/" class="brand-link" aria-label="DropMyBeats home"><img class="dmb-anim" src="/img/logo-anim.gif" alt="DropMyBeats"></a>
+    <img class="ev-mini hidden" id="evLogo" alt="">
     <div class="grow">
       <div class="ev-name" id="evName">DropMyBeats</div>
       <div class="ev-title" id="evTitle">Loading…</div>
     </div>
-    <button class="chip-btn hidden" id="posterChip" aria-label="View the event poster">Poster</button>
+    <button class="icon-chip hidden" id="posterChip" aria-label="View the event poster" title="Event poster"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5"/><circle cx="9.5" cy="9" r="2"/><path d="m5 18 5-5 3 3 2.5-2.5L19 17"/></svg></button>
   </div>
 </header>
 <div id="conn" class="conn hidden">Reconnecting…</div>
 
 <main class="wrap stage-main" id="main">
-  <div class="brand-bar"><img class="dmb-anim" src="/img/logo-anim.gif" alt="DropMyBeats"></div>
   <div id="ended" class="notice hidden"><b>This event has ended.</b> Thanks for dancing with us.</div>
   <div id="announce" class="announce hidden"><span aria-hidden="true">📣</span><span id="announceText"></span></div>
   <div id="paused" class="notice hidden">The DJ has paused new requests. You can still +1 songs in the queue.</div>

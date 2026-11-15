@@ -96,8 +96,10 @@
     document.title = s.name + ' · DropMyBeats';
     $('#evName').textContent = s.name;
     $('#evTitle').textContent = [s.djName && 'with ' + s.djName, s.venue].filter(Boolean).join(', ') || 'Live song requests';
-    const tb = $('.brand-link img');
-    if (tb.getAttribute('src') !== (s.logoUrl || '/img/logo-mark.png')) tb.src = s.logoUrl || '/img/logo-mark.png';
+    // event logo sits beside the event name; the animated DropMyBeats logo stays on the left
+    const evLogo = $('#evLogo');
+    if (s.logoUrl && evLogo.getAttribute('src') !== s.logoUrl) evLogo.src = s.logoUrl;
+    evLogo.classList.toggle('hidden', !s.logoUrl);
     $('#posterChip').classList.toggle('hidden', !s.posterUrl);
     $('#posterChip').onclick = () => viewImage(s.posterUrl, s.name + ' poster');
     renderNameBrand(s);
@@ -187,7 +189,7 @@
     const draw = () => {
       if (!items.length) {
         const msg = tab === 'queue' ? 'No requests yet. Tap + to drop the first beat.' : tab === 'mine' ? "You haven't requested anything yet. Tap + to pick a song." : 'Nothing has been played from requests yet.';
-        $('#list').innerHTML = `<div class="empty"><img class="dmb-anim" src="/img/logo-anim.gif" alt=""><div>${msg}</div></div>`;
+        $('#list').innerHTML = `<div class="empty-line">${msg}</div>`;
         return;
       }
       $('#list').innerHTML = items.map((r, i) => row(r, i)).join('');
