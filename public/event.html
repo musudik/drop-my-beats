@@ -9,40 +9,68 @@
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/stage.css">
 </head>
-<body>
-<header class="topbar">
+<body class="stage-page">
+<!-- The room takes the colour of the record that's playing -->
+<div class="ambient" aria-hidden="true"><img id="ambientImg" alt=""></div>
+
+<header class="topbar glass-top">
   <div class="wrap">
-    <a href="/"><img src="/img/logo-mark.png" alt="DropMyBeats home"></a>
+    <a href="/" class="brand-link"><img src="/img/logo-mark.png" alt="DropMyBeats home"></a>
     <div class="grow">
-      <div class="wordmark">DropMyBeats</div>
+      <div class="ev-name" id="evName">DropMyBeats</div>
       <div class="ev-title" id="evTitle">Loading…</div>
     </div>
-    <button class="icon-btn" id="meBtn" aria-label="Change your name"></button>
+    <button class="chip-btn hidden" id="posterChip" aria-label="View the event poster">Poster</button>
   </div>
 </header>
 <div id="conn" class="conn hidden">Reconnecting…</div>
 
-<main class="wrap pad-bottom" id="main" style="padding-top:16px">
-  <div id="ended" class="card center hidden" style="margin-bottom:12px"><b>This event has ended.</b><div class="muted small">Thanks for partying with us!</div></div>
-  <div id="announce" class="announce hidden" style="margin-bottom:12px"><span>📣</span><span id="announceText"></span></div>
-  <div id="paused" class="card center small hidden" style="margin-bottom:12px">⏸ The DJ has paused new requests. You can still like songs in the queue.</div>
+<main class="wrap stage-main" id="main">
+  <div id="ended" class="notice hidden"><b>This event has ended.</b> Thanks for dancing with us.</div>
+  <div id="announce" class="announce hidden"><span aria-hidden="true">📣</span><span id="announceText"></span></div>
+  <div id="paused" class="notice hidden">The DJ has paused new requests. You can still +1 songs in the queue.</div>
 
-  <section id="evHero" class="ev-hero hidden"></section>
-  <section id="nowPlaying" class="now-playing hidden" style="margin-bottom:16px" aria-live="polite"></section>
+  <!-- Hero: the record player -->
+  <section class="deck" id="deck" aria-live="polite">
+    <div class="deck-text" id="deckText"></div>
+    <div class="turntable" id="turntable">
+      <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="ring-track" cx="100" cy="100" r="96"/>
+        <circle class="ring-fill" id="ringFill" cx="100" cy="100" r="96"/>
+      </svg>
+      <div class="disc" id="disc">
+        <div class="vinyl"><div class="label"></div></div>
+        <div class="spindle"></div>
+      </div>
+      <div class="sheen" aria-hidden="true"></div>
+      <div class="tonearm" aria-hidden="true"><i class="pivot"></i><i class="arm"></i><i class="head"></i></div>
+    </div>
+  </section>
 
-  <div class="tabs" role="tablist" style="margin-bottom:14px">
-    <button class="on" data-tab="queue">Queue <span class="count" id="cQueue"></span></button>
-    <button data-tab="mine">Mine <span class="count" id="cMine"></span></button>
-    <button data-tab="played">Played</button>
-  </div>
-  <p id="bombHint" class="faint small hidden" style="margin:-4px 2px 12px"></p>
-  <section id="list"></section>
+  <!-- Up next carousel -->
+  <section class="upnext hidden" id="upnext">
+    <div class="sec-head"><h2>Up next</h2><span class="faint small" id="upnextHint"></span></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section class="list-sec">
+    <div class="sec-head"><h2 id="listTitle">Queue</h2><span class="faint small" id="bombHint"></span></div>
+    <div id="list"></div>
+  </section>
 </main>
 
-<div class="fab-bar"><button class="btn" id="requestBtn">Request a song</button></div>
+<!-- Glass dock with the request button -->
+<nav class="dock" aria-label="Main">
+  <button class="dock-btn on" data-tab="queue"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg><span>Queue</span><b class="dot" id="cQueue"></b></button>
+  <button class="dock-btn" data-tab="mine"><svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.5 8 3.6 4.5 7.1 4.5c2 0 3.4 1.1 4.9 2.9 1.5-1.8 2.9-2.9 4.9-2.9 3.5 0 5.6 3.5 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg><span>Mine</span><b class="dot" id="cMine"></b></button>
+  <button class="dock-plus" id="requestBtn" aria-label="Request a song"><span class="plus-ring"></span><span class="plus-core"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
+  <button class="dock-btn" data-tab="played"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg><span>Played</span></button>
+  <button class="dock-btn" id="meBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span id="meLabel">You</span></button>
+</nav>
 
 <!-- Name sheet -->
 <div class="sheet-bg" id="bg"></div>
@@ -68,12 +96,12 @@
   </header>
   <div style="padding:0 16px 10px; flex:none">
     <div style="position:relative">
-      <input id="q" class="input" type="search" placeholder="Song, artist or movie…" autocomplete="off" enterkeyhint="search" style="padding-left:46px">
+      <input id="q" class="input" type="search" placeholder="Song, artist or movie" autocomplete="off" enterkeyhint="search" style="padding-left:46px">
       <span style="position:absolute;left:15px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--muted)" id="qIcon"></span>
     </div>
   </div>
   <div class="body" id="results">
-    <div class="empty"><img src="/img/logo-mark.png" alt=""><div>Search millions of tracks.<br>We'll send the DJ the exact song name.</div></div>
+    <div class="empty"><img src="/img/logo-mark.png" alt=""><div>Search millions of tracks.<br>The DJ gets the exact song name.</div></div>
   </div>
 </div>
 
@@ -94,6 +122,7 @@
 <audio id="preview" preload="none"></audio>
 <script src="/js/common.js"></script>
 <script src="/js/live.js"></script>
+<script src="/js/stage.js"></script>
 <script src="/js/event.js"></script>
 </body>
 </html>

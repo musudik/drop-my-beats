@@ -7,37 +7,119 @@
 <title>DropMyBeats · Big screen</title>
 <link rel="icon" href="/img/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/stage.css">
+<style>
+  /* Big screen (TV / projector): wheel of covers · turntable · QR */
+  html, body { height: 100%; overflow: hidden; }
+  .bs { position: relative; z-index: 2; height: 100vh; display: grid; grid-template-columns: 30vw 1fr 27vw; align-items: center; }
+
+  /* the wheel: played songs above, up next below, the next song pointing at the turntable */
+  .wheel { position: relative; height: 100vh; --R: 46vh; }
+  .wheel .track { position: absolute; left: calc(var(--R) * -0.58 - var(--R)); top: calc(50% - var(--R)); width: calc(var(--R) * 2); height: calc(var(--R) * 2); border-radius: 50%; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 0 0 calc(var(--R) * .26) rgba(255,255,255,.025); }
+  .wheel .hub { position: absolute; left: calc(var(--R) * -0.58); top: 50%; width: 0; height: 0; animation: sway 9s ease-in-out infinite alternate; }
+  @keyframes sway { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg); } }
+  .cov { position: absolute; left: 0; top: 0; width: 13vh; height: 13vh; margin: -6.5vh; border-radius: 20px; overflow: hidden; background: #222;
+    transform: rotate(var(--a)) translateX(var(--R)) rotate(calc(var(--a) * -1)) scale(var(--s, 1));
+    transition: transform 1.2s cubic-bezier(.2,.8,.2,1), opacity 1s, filter 1s; box-shadow: 0 12px 30px rgba(0,0,0,.6); }
+  .cov img, .cov .gen-art { width: 100%; height: 100%; object-fit: cover; font-size: 4vh; }
+  .cov.played { filter: grayscale(.8) brightness(.55); }
+  .cov.next { box-shadow: 0 0 0 3px var(--ember), 0 0 40px rgba(246,135,18,.55); }
+  .cov.leaving { opacity: 0; }
+  .cov .r { position: absolute; left: 8px; top: 8px; min-width: 30px; height: 26px; padding: 0 8px; border-radius: 13px; background: rgba(0,0,0,.55); font-family: var(--display); font-weight: 900; font-size: 14px; display: grid; place-items: center; }
+  .nextlabel { position: absolute; top: 50%; transform: translateY(-50%); left: calc(var(--R) * .42 + 11.5vh); right: 1vw; }
+  .nextlabel .k { color: var(--ember); font-weight: 800; font-size: 1.6vh; }
+  .nextlabel .t { font-family: var(--display); font-weight: 900; font-size: 2.8vh; line-height: 1.1; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .nextlabel .a { color: var(--smoke); font-size: 1.8vh; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nextlabel .m { margin-top: 8px; font-size: 1.6vh; color: var(--bone); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .nextlabel .k2 { margin-top: 10px; font-size: 1.5vh; color: var(--smoke); }
+
+  /* centre: the record */
+  .centre { display: grid; justify-items: center; align-content: center; gap: 3vh; height: 100vh; padding: 3vh 0; }
+  .bs .deck { margin: 0; padding: 0; overflow: visible; min-height: 0; display: grid; justify-items: center; }
+  .bs .turntable { position: relative; right: auto; top: auto; width: min(56vh, 34vw); height: min(56vh, 34vw); }
+  .bs .tonearm { right: -12%; top: -10%; width: 50%; height: 78%; }
+  .bs .vinyl .label .gen { font-size: 5vh; }
+  .np { text-align: center; max-width: 38vw; }
+  .np .k { color: var(--ember); font-weight: 800; font-size: 2vh; display: inline-flex; gap: 10px; align-items: center; }
+  .np .t { font-family: var(--display); font-weight: 900; font-size: 5.4vh; line-height: 1.02; letter-spacing: -.02em; margin-top: 1vh; text-wrap: balance; }
+  .np .s { color: var(--flare); font-weight: 800; font-size: 2vh; margin-top: .6vh; }
+  .np .a { font-size: 2.4vh; font-weight: 700; opacity: .85; margin-top: .8vh; }
+  .np .f { font-size: 1.9vh; color: var(--smoke); margin-top: 1vh; display: inline-flex; align-items: center; gap: 8px; }
+  .np .time { font-family: var(--display); font-weight: 800; color: var(--flare); font-size: 1.9vh; margin-top: .6vh; font-variant-numeric: tabular-nums; }
+  .np > * { animation: rise .8s cubic-bezier(.2,.8,.2,1) both; }
+
+  /* right: join */
+  .join { display: grid; justify-items: center; align-content: center; gap: 1.8vh; padding-right: 3vw; text-align: center; }
+  .join .ev-logo { width: 11vh; height: 11vh; border-radius: 22px; object-fit: cover; }
+  .join h1 { font-size: 3.6vh; line-height: 1.1; text-wrap: balance; }
+  .join .sub { color: var(--smoke); font-size: 1.9vh; }
+  .join .qr-box { width: min(34vh, 23vw); max-width: none; padding: 1.6vh; border-radius: 24px; box-shadow: 0 0 0 6px rgba(246,135,18,.25), 0 20px 60px rgba(0,0,0,.6); }
+  .join .scan { font-family: var(--display); font-weight: 800; font-size: 2.6vh; }
+  .join .code { font-family: var(--display); font-weight: 900; font-size: 6vh; letter-spacing: .18em; color: var(--ember); line-height: 1; }
+  .join .url { color: var(--flare); font-weight: 700; font-size: 1.8vh; }
+  .announce-bar { position: fixed; z-index: 5; left: 50%; top: 3vh; transform: translateX(-50%); max-width: 70vw; font-size: 2.4vh; padding: 1.4vh 2.4vh; border-radius: 18px; box-shadow: 0 10px 40px rgba(246,135,18,.4); }
+  .powered { position: fixed; z-index: 5; right: 2vw; bottom: 2vh; display: flex; gap: 8px; align-items: center; color: var(--smoke); font-size: 1.5vh; }
+  .powered img { width: 3vh; }
+
+  /* narrow screens (tablet held upright, phone): stack and drop the wheel */
+  @media (max-width: 900px) {
+    html, body { overflow: auto; height: auto; }
+    .bs { grid-template-columns: 1fr; height: auto; padding: 24px 16px 60px; gap: 24px; }
+    .wheel { display: none; }
+    .centre { height: auto; }
+    .bs .turntable { width: min(80vw, 420px); height: min(80vw, 420px); }
+    .np { max-width: 92vw; }
+    .join { padding: 0; }
+    .join .qr-box { width: min(70vw, 320px); }
+  }
+</style>
 </head>
-<body>
-<main class="screen">
-  <section class="qr-side stack">
-    <img id="brandMark" src="/img/logo-anim.gif" alt="DropMyBeats" style="width:min(40vw,22vh,200px);margin:0 auto -8px">
+<body class="stage-page">
+<div class="ambient" aria-hidden="true"><img id="ambientImg" alt=""></div>
+<div id="announce" class="announce announce-bar hidden"><span aria-hidden="true">📣</span><span id="announceText"></span></div>
+
+<main class="bs">
+  <section class="wheel" aria-label="Queue">
+    <div class="track"></div>
+    <div class="hub" id="hub"></div>
+    <div class="nextlabel" id="nextLabel"></div>
+  </section>
+
+  <section class="centre">
+    <div class="deck show-arm" id="deck">
+      <div class="turntable">
+        <svg class="ring" viewBox="0 0 200 200" aria-hidden="true"><circle class="ring-track" cx="100" cy="100" r="96"/><circle class="ring-fill" cx="100" cy="100" r="96"/></svg>
+        <div class="disc"><div class="vinyl"><div class="label"></div></div><div class="spindle"></div></div>
+        <div class="sheen" aria-hidden="true"></div>
+        <div class="tonearm" aria-hidden="true"><i class="pivot"></i><i class="arm"></i><i class="head"></i></div>
+      </div>
+    </div>
+    <div class="np" id="np" aria-live="polite"></div>
+  </section>
+
+  <section class="join">
     <img id="evLogo" class="ev-logo hidden" alt="">
     <h1 id="evName"></h1>
-    <div class="muted" style="font-size:clamp(16px,1.6vw,22px)">Scan to request a song</div>
+    <div class="sub" id="evSub"></div>
     <div class="qr-box"><img id="qr" alt="QR code to join"></div>
-    <div><span class="muted">or go to</span> <b id="url" style="color:var(--orange-2)"></b></div>
-    <div class="big-code" id="code"></div>
-  </section>
-  <section>
-    <img id="posterView" class="screen-poster hidden" alt="Event poster">
-    <div id="queueView">
-    <div id="announce" class="announce hidden" style="margin-bottom:16px;font-size:clamp(16px,1.5vw,22px)"><span>📣</span><span id="announceText"></span></div>
-    <section id="nowPlaying" class="now-playing hidden" style="margin-bottom:20px"></section>
-    <h2 style="font-size:clamp(18px,1.8vw,26px);margin-bottom:12px">Up next <span class="muted" id="count" style="font-weight:700"></span></h2>
-    <div id="list"></div>
-    </div>
-    <div class="row faint small hidden" id="poweredBy" style="justify-content:center;margin-top:18px;gap:8px"><img src="/img/logo-mark.png" alt="" style="width:26px">Powered by DropMyBeats</div>
+    <div class="scan">Scan to request a song</div>
+    <div class="code" id="code"></div>
+    <div class="url" id="url"></div>
   </section>
 </main>
+<div class="powered"><img src="/img/logo-mark.png" alt="">DropMyBeats</div>
+
 <script src="/js/common.js"></script>
 <script src="/js/live.js"></script>
+<script src="/js/stage.js"></script>
 <script>
 (() => {
-  const { $, esc, art, codeFromPath, setServerTime, bombPill } = DMB;
+  const { $, esc, codeFromPath, setServerTime, cover, avatar, splitTitle } = DMB;
   const code = codeFromPath();
+  const deck = DMB.stage.deck($('#deck'), { textEl: $('#np'), ambientImg: $('#ambientImg') });
+
   DMB.live.connect({
     code,
     mode: 'screen',
@@ -49,37 +131,79 @@
     $('#url').textContent = j.url.replace(/^https?:\/\//, '');
     $('#code').textContent = code;
   });
-  // With a poster, alternate the right side between the poster and the queue
-  let poster = '', showPoster = false;
-  setInterval(() => {
-    if (!poster) return;
-    showPoster = !showPoster;
-    $('#posterView').classList.toggle('hidden', !showPoster);
-    $('#queueView').classList.toggle('hidden', showPoster);
-    (showPoster ? $('#posterView') : $('#queueView')).classList.add('fade-in');
-  }, 15000);
+
+  let skewSet = false;
   function render(s, fresh) {
-    if (fresh || !window._skewSet) { setServerTime(s.serverTime); window._skewSet = true; }
+    if (fresh || !skewSet) { setServerTime(s.serverTime); skewSet = true; }
+    document.title = s.name + ' · Big screen';
     $('#evName').textContent = s.name;
+    $('#evSub').textContent = [s.djName && 'with ' + s.djName, s.venue].filter(Boolean).join(', ');
     const logo = $('#evLogo');
     if (s.logoUrl && logo.getAttribute('src') !== s.logoUrl) logo.src = s.logoUrl;
     logo.classList.toggle('hidden', !s.logoUrl);
-    $('#brandMark').classList.toggle('hidden', !!s.logoUrl);
-    $('#poweredBy').classList.toggle('hidden', !s.logoUrl);
-    poster = s.posterUrl || '';
-    if (poster && $('#posterView').getAttribute('src') !== poster) $('#posterView').src = poster;
-    if (!poster) { showPoster = false; $('#posterView').classList.add('hidden'); $('#queueView').classList.remove('hidden'); }
     $('#announce').classList.toggle('hidden', !s.announcement);
     $('#announceText').textContent = s.announcement;
-    const np = s.nowPlaying;
-    $('#nowPlaying').classList.toggle('hidden', !np);
-    if (np) $('#nowPlaying').innerHTML = `<div class="label"><span class="eq"><i></i><i></i><i></i></span> Now playing</div>
-      <div class="np">${art(np.artwork)}<div class="grow"><div class="t" style="font-size:clamp(20px,2.2vw,32px)">${esc(np.title)}</div><div class="muted">${esc(np.artist)} · for ${esc(np.by)}</div></div></div>`;
-    $('#count').textContent = s.queue.length ? '(' + s.queue.length + ')' : '';
-    $('#list').innerHTML = s.queue.length ? s.queue.slice(0, 8).map((r, i) => `<div class="song"><div class="rank">${i + 1}</div>${art(r.artwork)}
-      <div class="meta"><div class="t">${esc(r.title)}</div><div class="a">${esc(r.artist)}</div><div class="by"><span>${esc(r.by)}</span>${bombPill(r, s.settings)}</div></div>
-      <div class="like-btn" style="cursor:default">♥<span>${r.likes}</span></div></div>`).join('')
-      : '<div class="empty">No requests yet. Scan the code and be the first!</div>';
+
+    const next = s.queue[0];
+    deck.set({
+      song: s.nowPlaying,
+      fallbackArt: s.posterUrl || s.logoUrl || '',
+      fallbackTitle: s.name,
+      html: (song) => {
+        if (!song) return `<div class="k" style="color:var(--smoke)">Waiting for the first drop</div><div class="t">${esc(s.name)}</div><div class="a">Scan the code and request your song</div>`;
+        const [main, sub] = splitTitle(song.title);
+        return `<div class="k"><span class="eqbars"><i></i><i></i><i></i><i></i></span>Now playing</div>
+          <div class="t">${esc(main)}</div>${sub ? `<div class="s">${esc(sub)}</div>` : ''}
+          <div class="a">${esc(song.artist)}</div>
+          <div class="f">${avatar(song.by)} Requested by ${esc(song.by)}</div>
+          <div class="time" data-np-time></div>`;
+      },
+    });
+    wheel(s);
+    const nl = $('#nextLabel');
+    nl.innerHTML = next ? `<div class="k">Up next</div><div class="t">${esc(splitTitle(next.title)[0])}</div><div class="a">${esc(next.artist)}</div>
+      <div class="m">${avatar(next.by)} ${esc(next.by)} <span class="pill" style="font-size:1.5vh">+${next.likes}</span></div>
+      ${s.queue.length > 1 ? `<div class="k2">${s.queue.length - 1} more in the queue</div>` : ''}` : '<div class="k">Up next</div><div class="a">Nothing yet. Scan to request!</div>';
+  }
+
+  // Place covers around the wheel. Each cover keeps its element, so it glides to its new spot.
+  const els = new Map();
+  function wheel(s) {
+    const hub = $('#hub');
+    const step = 21; // degrees between covers
+    const items = [
+      ...s.played.slice(0, 3).reverse().map((r, i, arr) => ({ r, a: -(arr.length - i) * step, cls: 'played' })),
+      ...s.queue.slice(0, 5).map((r, i) => ({ r, a: i * step, cls: i === 0 ? 'next' : '', rank: i + 1 })),
+    ];
+    const seen = new Set();
+    for (const { r, a, cls, rank } of items) {
+      seen.add(r.id);
+      let el = els.get(r.id);
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'cov';
+        el.style.setProperty('--a', (a + 40) + 'deg'); // fly in from below
+        el.style.opacity = '0';
+        el.innerHTML = cover(r.artwork ? DMB.bigArt(r.artwork, 300) : '', r.title, 'img') + '<span class="r"></span>';
+        hub.appendChild(el);
+        els.set(r.id, el);
+        void el.offsetWidth;
+      }
+      el.classList.remove('leaving');
+      el.style.opacity = '';
+      el.className = 'cov ' + cls;
+      el.style.setProperty('--a', a + 'deg');
+      el.style.setProperty('--s', cls === 'next' ? 1.22 : 1 - Math.min(Math.abs(a) / step, 4) * 0.07);
+      el.style.zIndex = String(20 - Math.abs(a / step));
+      el.querySelector('.r').textContent = rank ? '#' + rank : '✓';
+    }
+    for (const [id, el] of els) {
+      if (seen.has(id)) continue;
+      el.classList.add('leaving');
+      el.style.setProperty('--a', (parseFloat(el.style.getPropertyValue('--a')) - 30) + 'deg');
+      els.delete(id);
+      setTimeout(() => el.remove(), 1200);
+    }
   }
 })();
 </script>

@@ -9,8 +9,9 @@
 <link rel="icon" href="/img/icon-192.png">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/stage.css">
 </head>
 <body>
 <header class="topbar">
@@ -114,6 +115,8 @@
             <p class="faint small" style="margin:0">Requests that are about to explode get a priority boost. Tips, pins and enough likes defuse the bomb.</p>
 
             <h3 style="font-size:15px;margin-top:20px">🎛 Requests</h3>
+            <label class="field"><span>Block repeats for (minutes, 0 = allow repeats)</span><input class="input" type="number" min="0" max="720" name="repeatBlockMinutes"></label>
+            <p class="faint small" style="margin:0">Guests see "Played 20 min ago" in search and can't re-request a song inside this window.</p>
             <label class="field"><span>Max waiting requests per person (0 = unlimited)</span><input class="input" type="number" min="0" max="50" name="maxOpenRequestsPerUser"></label>
             <label class="switch"><span>Allow explicit tracks</span><input type="checkbox" name="allowExplicit"></label>
 
@@ -136,6 +139,7 @@
 
 <script src="/js/common.js"></script>
 <script src="/js/live.js"></script>
+<script src="/js/stage.js"></script>
 <script src="/js/dj.js"></script>
 </body>
 </html>

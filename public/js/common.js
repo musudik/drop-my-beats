@@ -134,5 +134,37 @@ window.DMB = (() => {
     document.body.appendChild(d);
   }
 
-  return { $, $$, esc, store, userId, toast, icons, fmtLeft, fmtDur, ago, art, codeFromPath, setServerTime, now, bombPill, copy, shrinkImage, uploadMedia, removeMedia, viewImage };
+  /* Same-song matching (mirror of lib/core.js sameSong) */
+  const clean = (x) => String(x ?? '').toLowerCase();
+  const titleKey = (t) => clean(t).replace(/\(.*?\)|\[.*?\]/g, ' ').replace(/\s[-–—]\s.*$/, ' ').replace(/\b(feat|ft|featuring)\b.*$/, ' ').replace(/[^a-z0-9\u0900-\u0dff]+/g, ' ').trim();
+  const artistKeys = (a) => clean(a).split(/,|&|\band\b|\bx\b|\bfeat\.?|\bft\.?|\bwith\b|\//).map((x) => x.replace(/[^a-z0-9\u0900-\u0dff]+/g, ' ').trim()).filter(Boolean);
+  function sameSong(a, b) {
+    if (!a || !b || !titleKey(a.title) || titleKey(a.title) !== titleKey(b.title)) return false;
+    const x = artistKeys(a.artist), y = artistKeys(b.artist);
+    if (!x.length || !y.length) return true;
+    return x.some((n) => y.includes(n));
+  }
+
+  /* Colour + initials for songs/people without artwork */
+  function hue(str) { let h = 0; for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % 360; }
+  const initials = (t) => String(t || '?').replace(/\(.*$/, '').trim().split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase();
+  const genBg = (t) => { const h = hue(t); return `linear-gradient(135deg, hsl(${h} 85% 55%), hsl(${(h + 50) % 360} 80% 35%))`; };
+  // Ask iTunes for a bigger cover when we have one of theirs
+  const bigArt = (url, size = 600) => String(url || '').replace(/\/\d+x\d+bb\./, `/${size}x${size}bb.`);
+  function cover(url, title, cls = 'art') {
+    return url
+      ? `<img class="${cls}" src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+      : `<div class="${cls} gen-art" style="background:${genBg(title)}" aria-hidden="true">${esc(initials(title))}</div>`;
+  }
+  const avatar = (name) => `<span class="avatar" style="background:hsl(${hue(name)} 80% 66%)">${esc(initials(name).slice(0, 1))}</span>`;
+
+  // "Kesariya (From \"Brahmastra\")" → ["Kesariya", "From \"Brahmastra\""]
+  function splitTitle(t) {
+    t = String(t || '');
+    const m = t.match(/^(.*?)\s*(?:[(\[](.+?)[)\]]|\s[-–—]\s(.+))\s*$/);
+    return m && m[1] ? [m[1], m[2] || m[3]] : [t, ''];
+  }
+
+  return { splitTitle, $, $$, esc, store, userId, toast, icons, fmtLeft, fmtDur, ago, art, codeFromPath, setServerTime, now, bombPill, copy, shrinkImage, uploadMedia, removeMedia, viewImage,
+    sameSong, hue, initials, genBg, bigArt, cover, avatar };
 })();

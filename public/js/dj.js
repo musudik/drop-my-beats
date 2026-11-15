@@ -129,12 +129,18 @@
 
     const np = s.nowPlaying;
     $('#nowPlaying').classList.toggle('hidden', !np);
-    if (np) {
+    // Only rebuild when the song changes, so the record keeps turning smoothly
+    if (np && $('#nowPlaying').dataset.id !== np.id) {
+      $('#nowPlaying').dataset.id = np.id;
+      const lbl = np.artwork ? `<img src="${esc(DMB.bigArt(np.artwork, 300))}" alt="" referrerpolicy="no-referrer">` : `<div class="gen" style="background:${DMB.genBg(np.title)}">${esc(DMB.initials(np.title))}</div>`;
       $('#nowPlaying').innerHTML = `
-        <div class="label"><span class="eq"><i></i><i></i><i></i></span> Now playing</div>
-        <div class="np">${art(np.artwork)}<div class="grow"><div class="t">${esc(np.title)}</div><div class="muted">${esc(np.artist)}</div><div class="faint small">for ${esc(np.by)}${np.likes ? ` · ♥ ${np.likes}` : ''}</div></div>
+        <div class="label"><span class="eqbars"><i></i><i></i><i></i><i></i></span> Now playing</div>
+        <div class="np"><div class="mini-vinyl"><div class="vinyl"><div class="label">${lbl}</div></div><div class="spindle"></div></div>
+        <div class="grow"><div class="t">${esc(np.title)}</div><div class="muted">${esc(np.artist)}</div><div class="faint small" data-np-meta></div></div>
         <button class="btn sm" data-act="played" data-id="${np.id}">Done</button></div>`;
     }
+    if (np) $('#nowPlaying [data-np-meta]').textContent = `for ${np.by}${np.likes ? `, ${np.likes} +1s` : ''}`;
+    else delete $('#nowPlaying').dataset.id;
     if (role === 'admin' && (first || !settingsDirty)) fillSettings();
     if (role === 'admin') renderBrand();
     renderList();
@@ -148,7 +154,7 @@
       $('#list').innerHTML = `<div class="empty"><img src="/img/logo-mark.png" alt=""><div>${tab === 'queue' ? 'No requests waiting. Share the QR code to get the crowd going!' : 'Nothing here yet.'}</div></div>`;
       return;
     }
-    $('#list').innerHTML = items.map((r, i) => djRow(r, i)).join('');
+    DMB.stage.flip($('#list'), () => { $('#list').innerHTML = items.map((r, i) => djRow(r, i)).join(''); });
   }
 
   function djRow(r, i) {
@@ -169,14 +175,17 @@
     } else {
       actions = `<span class="faint small grow">${r.status === 'exploded' ? '💣 Exploded' : 'Removed'} ${r.closedAt ? ago(r.closedAt) : ''}</span><button class="btn sm dark" data-act="queued" data-id="${r.id}">↺ Restore</button>`;
     }
-    return `<div class="dj-song ${r.pinned ? 'pinned' : ''} ${hot && r.status === 'queued' ? 'hot' : ''}">
+    // Warn the DJ when a waiting song was already played tonight
+    const before = r.status === 'queued' && state.played.find((p) => DMB.sameSong(p, r));
+    const beforePill = before ? `<span class="pill" style="background:#3a2a0a;color:var(--flare)">🔁 Played ${ago(before.playedAt)}</span>` : '';
+    return `<div class="dj-song ${r.pinned ? 'pinned' : ''} ${hot && r.status === 'queued' ? 'hot' : ''}" data-rid="${r.id}">
       ${r.status === 'queued' ? `<div class="score" title="Priority score">${i + 1}<small>${r.likes}♥</small></div>` : '<div></div>'}
-      ${art(r.artwork)}
+      ${DMB.cover(r.artwork, r.title)}
       <div style="min-width:0">
         <div class="t copy-exact" data-copy="${esc(exact)}" title="Tap to copy the exact name" style="font-weight:800">${esc(r.title)}${r.explicit ? ' <span class="pill explicit">E</span>' : ''}</div>
         <div class="muted small">${esc(r.artist)}${r.album ? ' · ' + esc(r.album) : ''}${r.duration ? ' · ' + fmtDur(r.duration) : ''}</div>
         <div class="by" style="color:var(--faint);font-size:12.5px;margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <span>by <b style="color:var(--muted)">${esc(r.by)}</b> · ${ago(r.createdAt)}</span>
+          <span>by <b style="color:var(--muted)">${esc(r.by)}</b> · ${ago(r.createdAt)}</span>${beforePill}
           ${r.status === 'queued' ? bombPill(r, st) : ''}
           ${r.tipTotal ? `<span class="pill tip">${esc(st.currency)}${r.tipTotal}</span>` : ''}
           ${r.trackUrl ? `<a class="pill" href="${esc(r.trackUrl)}" target="_blank" rel="noopener">Open ↗</a>` : ''}
@@ -230,7 +239,7 @@
     syncUpi();
     renderBrand();
     f.timeBombEnabled.checked = s.timeBombEnabled; f.timeBombMinutes.value = s.timeBombMinutes; f.defuseLikes.value = s.defuseLikes;
-    f.maxOpenRequestsPerUser.value = s.maxOpenRequestsPerUser; f.allowExplicit.checked = s.allowExplicit;
+    f.maxOpenRequestsPerUser.value = s.maxOpenRequestsPerUser; f.repeatBlockMinutes.value = s.repeatBlockMinutes ?? 60; f.allowExplicit.checked = s.allowExplicit;
     f.managerPin.value = state.managerPin || '';
     settingsDirty = false;
   }
@@ -242,7 +251,7 @@
       tipsEnabled: f.tipsEnabled.checked, tipAmounts: f.tipAmounts.value, currencyCode: f.currencyCode.value,
       upiId: f.upiId.value, upiName: f.upiName.value,
       timeBombEnabled: f.timeBombEnabled.checked, timeBombMinutes: f.timeBombMinutes.value, defuseLikes: f.defuseLikes.value,
-      maxOpenRequestsPerUser: f.maxOpenRequestsPerUser.value, allowExplicit: f.allowExplicit.checked,
+      maxOpenRequestsPerUser: f.maxOpenRequestsPerUser.value, repeatBlockMinutes: f.repeatBlockMinutes.value, allowExplicit: f.allowExplicit.checked,
     };
     patch.managerPin = f.managerPin.value;
     const res = await emit('admin:settings', patch);
