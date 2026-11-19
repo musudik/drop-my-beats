@@ -100,8 +100,7 @@
     const evLogo = $('#evLogo');
     if (s.logoUrl && evLogo.getAttribute('src') !== s.logoUrl) evLogo.src = s.logoUrl;
     evLogo.classList.toggle('hidden', !s.logoUrl);
-    $('#posterChip').classList.toggle('hidden', !s.posterUrl);
-    $('#posterChip').onclick = () => viewImage(s.posterUrl, s.name + ' poster');
+    renderInfoLinks(s);
     renderNameBrand(s);
 
     $('#ended').classList.toggle('hidden', s.status !== 'ended');
@@ -244,6 +243,28 @@
       res.error ? toast(res.error, true) : toast('Request removed');
     }
   });
+
+  // Header button + chips that open the Event info page (schedule, food menu, parking, poster)
+  const INFO = {
+    general: ['Details', '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'],
+    schedule: ['Schedule', '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],
+    food: ['Food menu', '<path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8M7 7h4M17 3c-2 2-2 7 0 9v9"/>'],
+    parking: ['Parking', '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M10 17V8h3a2.5 2.5 0 0 1 0 5h-3"/>'],
+  };
+  let infoKey = '';
+  function renderInfoLinks(s) {
+    const keys = (s.info || []).filter((k) => INFO[k]);
+    const k = keys.join(',') + '|' + (s.posterUrl ? 1 : 0);
+    if (k === infoKey) return;
+    infoKey = k;
+    const base = `/e/${code}/info`;
+    $('#infoBtn').href = base;
+    $('#infoBtn').classList.toggle('hidden', !keys.length && !s.posterUrl);
+    const chips = keys.map((x) => `<a href="${base}#${x}"><svg viewBox="0 0 24 24" aria-hidden="true">${INFO[x][1]}</svg>${INFO[x][0]}</a>`);
+    if (s.posterUrl) chips.push(`<a href="${base}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><circle cx="9.5" cy="9" r="2"/><path d="m5 18 5-5 3 3 2.5-2.5L19 17"/></svg>Poster</a>`);
+    $('#infoChips').innerHTML = chips.join('');
+    $('#infoChips').classList.toggle('hidden', !chips.length);
+  }
 
   let nameBrandKey = '';
   function renderNameBrand(s) {

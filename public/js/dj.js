@@ -49,6 +49,7 @@
     $('#roleBadge').textContent = role;
     $('#roleBadge').className = 'role-badge ' + role;
     $('#settingsPanel').classList.toggle('hidden', role !== 'admin');
+    $('#infoPanel').classList.toggle('hidden', role !== 'admin');
     render(j.state, true);
     loadShare();
     live = DMB.live.connect({

@@ -42,6 +42,12 @@ Open **http://localhost:3000** and click **Host an event**. The console prints t
 * **Ranking**: likes ×10, tips ×15 per boost step (the smallest quick-pick amount, or e.g. ₹100 / €5 if none are set), plus an urgency boost in the last 5 minutes of a TimeBomb. Pinned songs stay on top.
 * **TimeBomb** 💣: each request counts down (30 minutes by default). If it isn't played in time, it explodes and drops off the queue. A tip, a DJ pin or defuse, or reaching the like threshold (10 by default) defuses it. Exploded songs can be restored from the **Removed** tab.
 * **Event logo & poster**: the admin uploads them when creating the event, or later in *Event settings → Event logo & poster*. The logo appears in the guest header, the DJ console and the big screen. The poster appears as a tappable banner for guests, alternates with the queue on the big screen every 15 seconds, and is the preview image when the event link is shared on WhatsApp. Images are resized in the browser before upload and stored in `data/uploads/`.
+* **Event info page** (`/e/CODE/info`): the admin fills it in the DJ console under *Event info*. It has four sections, each taking typed text and up to 8 photos:
+  * **Details**: when, venue address (opens Google Maps), dress code, contacts. Links and phone numbers become tappable.
+  * **Schedule**: time slots and/or a schedule JPG. While the event is on, the current slot is marked "Now".
+  * **Food menu**: dishes with prices and Veg / Non-veg / Vegan / Drink marks, and/or a menu photo.
+  * **Parking**: location (opens Google Maps), directions, and/or a parking map photo.
+  Guests open it from the ⓘ button or the quick chips under Now Playing. Photos open full screen for zooming.
 * **Tips**: the admin picks the **currency** from a dropdown (INR, USD, EUR, GBP, AED and more). Guests type any amount they like. The admin can optionally add one-tap quick-pick amounts. With INR, the admin can add a **UPI ID**, and the tip button then opens the guest's UPI app (GPay, PhonePe, Paytm…) with the amount filled in. Tips are recorded as *pledged*. The DJ taps a tip to mark it as received. The app does not verify payments itself.
 * **Controls**: pause or open requests, a per-person limit on waiting requests, an explicit-content filter, announcements shown to everyone, and end or re-open the event.
 * Guests can add the app to their home screen, since it ships a web app manifest.

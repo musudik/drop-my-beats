@@ -25,7 +25,7 @@
       <div class="ev-name" id="evName">DropMyBeats</div>
       <div class="ev-title" id="evTitle">Loading…</div>
     </div>
-    <button class="icon-chip hidden" id="posterChip" aria-label="View the event poster" title="Event poster"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5"/><circle cx="9.5" cy="9" r="2"/><path d="m5 18 5-5 3 3 2.5-2.5L19 17"/></svg></button>
+    <a class="icon-chip hidden" id="infoBtn" href="#" aria-label="Event info: schedule, food menu, parking" title="Event info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></a>
   </div>
 </header>
 <div id="conn" class="conn hidden">Reconnecting…</div>
@@ -51,6 +51,9 @@
       <div class="tonearm" aria-hidden="true"><i class="pivot"></i><i class="arm"></i><i class="head"></i></div>
     </div>
   </section>
+
+  <!-- Quick links to schedule / food menu / parking -->
+  <nav class="info-chips hidden" id="infoChips" aria-label="Event info"></nav>
 
   <!-- Up next carousel -->
   <section class="upnext hidden" id="upnext">

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Event info · DropMyBeats</title>
+<link rel="icon" href="/img/icon-192.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/stage.css">
+</head>
+<body class="stage-page info-page">
+<div class="ambient" aria-hidden="true"><img id="ambientImg" alt=""></div>
+
+<header class="topbar glass-top">
+  <div class="wrap">
+    <a href="/" class="brand-link" aria-label="DropMyBeats home"><img class="dmb-anim" src="/img/logo-anim.gif" alt="DropMyBeats"></a>
+    <img class="ev-mini hidden" id="evLogo" alt="">
+    <div class="grow">
+      <div class="ev-name" id="evName">Event info</div>
+      <div class="ev-title" id="evTitle">Loading…</div>
+    </div>
+  </div>
+  <nav class="info-tabs hidden" id="tabs" aria-label="Sections"></nav>
+</header>
+
+<main class="wrap info-main" id="main">
+  <div class="empty-line" style="margin-top:24px">Loading event details…</div>
+</main>
+
+<a class="info-fab" id="backBtn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Request a song</a>
+
+<script src="/js/common.js"></script>
+<script src="/js/info.js"></script>
+</body>
+</html>

@@ -92,7 +92,8 @@ window.DMB = (() => {
     if (!/^image\//.test(file.type)) throw new Error('Please choose an image file');
     // Keep animated GIF logos as they are (if they're a sensible size)
     if (file.type === 'image/gif' && file.size <= 3 * 1024 * 1024) return file;
-    const maxSide = kind === 'logo' ? 600 : 1600;
+    // info photos (schedules, menus, parking maps) stay sharp enough to read the small print
+    const maxSide = kind === 'logo' ? 600 : kind === 'info' ? 2000 : 1600;
     const url = URL.createObjectURL(file);
     try {
       const img = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => bad(new Error("Couldn't read that image")); i.src = url; });
@@ -103,7 +104,7 @@ window.DMB = (() => {
       c.getContext('2d').drawImage(img, 0, 0, w, h);
       const toBlob = (type, q) => new Promise((ok) => c.toBlob(ok, type, q));
       // Logos keep transparency (WebP, else PNG); posters become JPEG
-      let blob = kind === 'logo' ? await toBlob('image/webp', 0.9) : await toBlob('image/jpeg', 0.86);
+      let blob = kind === 'logo' ? await toBlob('image/webp', 0.9) : await toBlob('image/jpeg', kind === 'info' ? 0.88 : 0.86);
       if (!blob || (kind === 'logo' && blob.type !== 'image/webp')) blob = await toBlob('image/png');
       if (!blob) throw new Error("Couldn't process that image");
       return blob;
@@ -115,6 +116,19 @@ window.DMB = (() => {
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || 'Upload failed');
     return j.url;
+  }
+  async function uploadInfoImage(code, section, file, key) {
+    const blob = await shrinkImage(file, 'info');
+    const r = await fetch(`/api/events/${code}/info-image/${section}`, { method: 'POST', headers: { 'Content-Type': blob.type || 'application/octet-stream', 'x-admin-key': key }, body: blob });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'Upload failed');
+    return j;
+  }
+  async function removeInfoImage(code, section, url, key) {
+    const r = await fetch(`/api/events/${code}/info-image/${section}?u=${encodeURIComponent(url)}`, { method: 'DELETE', headers: { 'x-admin-key': key } });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'Could not remove');
+    return j;
   }
   async function removeMedia(code, kind, key) {
     const r = await fetch(`/api/events/${code}/media/${kind}`, { method: 'DELETE', headers: { 'x-admin-key': key } });
@@ -192,6 +206,6 @@ window.DMB = (() => {
   }
   document.addEventListener('click', (e) => { if (e.target.closest('[data-about]')) { e.preventDefault(); showAbout(); } });
 
-  return { ABOUT, showAbout, splitTitle, $, $$, esc, store, userId, toast, icons, fmtLeft, fmtDur, ago, art, codeFromPath, setServerTime, now, bombPill, copy, shrinkImage, uploadMedia, removeMedia, viewImage,
+  return { ABOUT, showAbout, splitTitle, $, $$, esc, store, userId, toast, icons, fmtLeft, fmtDur, ago, art, codeFromPath, setServerTime, now, bombPill, copy, shrinkImage, uploadMedia, removeMedia, uploadInfoImage, removeInfoImage, viewImage,
     sameSong, hue, initials, genBg, bigArt, cover, avatar };
 })();
