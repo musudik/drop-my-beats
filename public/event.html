@@ -17,14 +17,11 @@
 <!-- The room takes the colour of the record that's playing -->
 <div class="ambient" aria-hidden="true"><img id="ambientImg" alt=""></div>
 
-<header class="topbar glass-top">
+<!-- Clear header: just the DropMyBeats logo and the event-info button; the event's own logo leads the hero below -->
+<header class="topbar clear-top">
   <div class="wrap">
     <a href="/" class="brand-link" aria-label="DropMyBeats home"><img class="dmb-anim" src="/img/logo-anim.gif" alt="DropMyBeats"></a>
-    <img class="ev-mini hidden" id="evLogo" alt="">
-    <div class="grow">
-      <div class="ev-name" id="evName">DropMyBeats</div>
-      <div class="ev-title" id="evTitle">Loading…</div>
-    </div>
+    <div class="grow"></div>
     <a class="icon-chip hidden" id="infoBtn" href="#" aria-label="Event info: schedule, food menu, parking" title="Event info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></a>
   </div>
 </header>

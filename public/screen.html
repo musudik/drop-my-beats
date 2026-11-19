@@ -53,7 +53,7 @@
   /* right: join */
   .join { display: grid; justify-items: center; align-content: center; gap: 1.3vh; padding-right: 3vw; text-align: center; }
   .join .brand-gif { width: min(26vh, 22vw); margin-bottom: -1vh; }
-  .join .ev-logo { width: 8vh; height: 8vh; border-radius: 18px; object-fit: cover; }
+  .join .ev-logo { height: 13vh; width: auto; max-width: 24vw; object-fit: contain; filter: drop-shadow(0 6px 22px rgba(0,0,0,.6)); }
   .join h1 { font-size: 3.6vh; line-height: 1.1; text-wrap: balance; }
   .join .sub { color: var(--smoke); font-size: 1.9vh; display: flex; align-items: center; justify-content: center; gap: 1.2vh; flex-wrap: wrap; }
   .join .sub .dj-logo { height: 6.5vh; max-width: 14vw; object-fit: contain; border-radius: 12px; }
@@ -141,6 +141,7 @@
     if (fresh || !skewSet) { setServerTime(s.serverTime); skewSet = true; }
     document.title = s.name + ' · Big screen';
     $('#evName').textContent = s.name;
+    $('#evName').classList.toggle('hidden', !!s.logoUrl); // the logo stands in for the name
     const sub = [s.djName && 'with ' + s.djName, s.venue].filter(Boolean).join(', ');
     $('#evSub').innerHTML = (s.djlogoUrl ? `<img class="dj-logo" src="${esc(s.djlogoUrl)}" alt="${esc(s.djName || 'DJ')} logo">` : '') + `<span>${esc(sub)}</span>`;
     const logo = $('#evLogo');

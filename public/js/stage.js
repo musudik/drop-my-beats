@@ -49,7 +49,7 @@ DMB.stage = (() => {
       root.classList.toggle('idle', !playing);
       const art = playing ? song.artwork : s.fallbackArt;
       const title = playing ? song.title : s.fallbackTitle;
-      const k = playing ? 'song:' + song.id : 'idle:' + (art || '') + title;
+      const k = (playing ? 'song:' + song.id : 'idle:' + (art || '') + title) + '|' + (s.key || '');
       if (k !== key) {
         key = k;
         label.innerHTML = art ? `<img src="${esc(bigArt(art))}" alt="" referrerpolicy="no-referrer">` : `<div class="gen" style="background:${genBg(title)}">${esc(initials(title))}</div>`;

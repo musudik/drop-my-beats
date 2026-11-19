@@ -283,7 +283,7 @@ details.panel > .inner { padding: 0 18px 18px; }
 .ev-hero .poster img { width: 100%; max-height: 240px; object-fit: cover; object-position: center top; }
 .ev-hero .poster .expand { position: absolute; right: 10px; bottom: 10px; font-size: 12px; font-weight: 700; background: rgba(0,0,0,.65); color: #fff; padding: 5px 10px; border-radius: 99px; }
 .ev-hero .info { display: flex; gap: 12px; align-items: center; padding: 14px 16px; }
-.ev-logo { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; background: #fff; flex: none; }
+.ev-logo { width: 56px; height: 56px; border-radius: 14px; object-fit: contain; background: transparent; flex: none; }
 .ev-hero.has-poster .ev-logo { margin-top: -42px; width: 72px; height: 72px; border: 3px solid var(--card); box-shadow: 0 6px 20px rgba(0,0,0,.5); }
 .ev-hero h1 { font-size: 20px; line-height: 1.2; }
 .ev-hero .sub { color: var(--muted); font-size: 14px; }

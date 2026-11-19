@@ -94,12 +94,7 @@
     state = s;
     if (fresh) setServerTime(s.serverTime);
     document.title = s.name + ' · DropMyBeats';
-    $('#evName').textContent = s.name;
-    $('#evTitle').textContent = [s.djName && 'with ' + s.djName, s.venue].filter(Boolean).join(', ') || 'Live song requests';
     // event logo sits beside the event name; the animated DropMyBeats logo stays on the left
-    const evLogo = $('#evLogo');
-    if (s.logoUrl && evLogo.getAttribute('src') !== s.logoUrl) evLogo.src = s.logoUrl;
-    evLogo.classList.toggle('hidden', !s.logoUrl);
     renderInfoLinks(s);
     renderDj(s);
     renderNameBrand(s);
@@ -128,15 +123,16 @@
       song: np,
       fallbackArt: s.posterUrl || s.logoUrl || '',
       fallbackTitle: s.name,
+      key: s.logoUrl || '', // redraw the hero when the event logo changes
       html: (song) => song
-        ? `<div class="np-label"><span class="eqbars"><i></i><i></i><i></i><i></i></span>Now playing</div>
+        ? `${s.logoUrl ? `<img class="np-evlogo" src="${esc(s.logoUrl)}" alt="${esc(s.name)}">` : ''}<div class="np-label"><span class="eqbars"><i></i><i></i><i></i><i></i></span>Now playing</div>
            <div class="np-title">${esc(DMB.splitTitle(song.title)[0])}</div>
            ${DMB.splitTitle(song.title)[1] ? `<div class="np-sub">${esc(DMB.splitTitle(song.title)[1])}</div>` : ''}
            <div class="np-artist">${esc(song.artist)}</div>
            <div class="np-for">${avatar(song.by)} for ${song.mine ? 'you' : esc(song.by)}</div>
            <div class="np-time" data-np-time></div>`
         : `<div class="np-label" style="color:var(--smoke)">Waiting for the first drop</div>
-           <div class="np-title">${esc(s.name)}</div>
+           ${s.logoUrl ? `<h1 class="np-logo"><img src="${esc(s.logoUrl)}" alt="${esc(s.name)}"></h1>` : `<div class="np-title">${esc(s.name)}</div>`}
            <div class="np-artist">${esc(s.djName ? 'with ' + s.djName : 'Live song requests')}</div>
            <div class="np-for" data-np-next></div>
            <button class="btn np-cta" data-cta>Request a song</button>`,
