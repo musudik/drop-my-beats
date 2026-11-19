@@ -46,7 +46,8 @@ Open **http://localhost:3000** and click **Host an event**. The console prints t
   * **Details**: when, venue address (opens Google Maps), dress code, contacts. Links and phone numbers become tappable.
   * **Schedule**: time slots and/or a schedule JPG. While the event is on, the current slot is marked "Now".
   * **Food menu**: dishes with prices and Veg / Non-veg / Vegan / Drink marks, and/or a menu photo.
-  * **Parking**: location (opens Google Maps), directions, and/or a parking map photo.
+  * **Parking**: location (an address or a pasted Google Maps link), directions text, and/or a parking map photo.
+  Every address gets **Get directions** (Apple Maps on iPhone, Google Maps on Android), **Google Maps** and **Apple Maps** buttons, and **Copy address**.
   Guests open it from the ⓘ button or the quick chips under Now Playing. Photos open full screen for zooming.
 * **Tips**: the admin picks the **currency** from a dropdown (INR, USD, EUR, GBP, AED and more). Guests type any amount they like. The admin can optionally add one-tap quick-pick amounts. With INR, the admin can add a **UPI ID**, and the tip button then opens the guest's UPI app (GPay, PhonePe, Paytm…) with the amount filled in. Tips are recorded as *pledged*. The DJ taps a tip to mark it as received. The app does not verify payments itself.
 * **Controls**: pause or open requests, a per-person limit on waiting requests, an explicit-content filter, announcements shown to everyone, and end or re-open the event.

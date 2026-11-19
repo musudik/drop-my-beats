@@ -19,8 +19,51 @@
     .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
     .replace(/(^|\s)(\+?\d[\d\s-]{7,}\d)/g, (m, s, n) => `${s}<a href="tel:${n.replace(/[\s-]/g, '')}">${n}</a>`)
     .replace(/\n/g, '<br>');
-  const mapsUrl = (q) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
-  const mapsBtn = (addr) => addr ? `<a class="btn sm map-btn" href="${mapsUrl(addr)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS.general}</svg>Open in Maps</a>` : '';
+  /* ---------- Maps: directions in the phone's own app, Google / Apple choice, copy address ---------- */
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const isLink = (a) => /^https?:\/\//i.test(a.trim()); // admin pasted a Google Maps share link
+  const enc = encodeURIComponent;
+  // On Android these https links open the Google Maps app; on iPhone the Apple ones open Apple Maps
+  const googleDir = (a) => (isLink(a) ? a.trim() : `https://www.google.com/maps/dir/?api=1&destination=${enc(a)}&travelmode=driving`);
+  const googleView = (a) => (isLink(a) ? a.trim() : `https://www.google.com/maps/search/?api=1&query=${enc(a)}`);
+  const appleDir = (a) => `https://maps.apple.com/?daddr=${enc(a)}&dirflg=d`;
+  const SVG = {
+    nav: '<path d="M3 11 21 3l-8 18-2-8-8-2z"/>',
+    copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+    pin: ICONS.general,
+    apple: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><path d="M9.5 9.5h5"/>',
+  };
+  const ic = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${SVG[k]}</svg>`;
+  function mapsBtn(addr) {
+    if (!addr) return '';
+    const a = esc(addr);
+    const primary = isIOS && !isLink(addr) ? appleDir(addr) : googleDir(addr);
+    return `<div class="map-actions">
+      <a class="btn map-go" href="${esc(primary)}" target="_blank" rel="noopener">${ic('nav')}Get directions</a>
+      <div class="map-alt">
+        <a class="chip-link" href="${esc(isLink(addr) ? googleView(addr) : googleDir(addr))}" target="_blank" rel="noopener">${ic('pin')}Google Maps</a>
+        ${isLink(addr) || isAndroid ? '' : `<a class="chip-link" href="${esc(appleDir(addr))}" target="_blank" rel="noopener">${ic('apple')}Apple Maps</a>`}
+        <button type="button" class="chip-link" data-copy-addr="${a}">${ic('copy')}<span>Copy ${isLink(addr) ? 'link' : 'address'}</span></button>
+      </div>
+    </div>`;
+  }
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // older phones / plain-http: select a hidden textarea and copy
+      const t = document.createElement('textarea');
+      t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch { ok = false; }
+      t.remove();
+      return ok;
+    }
+  }
 
   function photos(list, label) {
     if (!list.length) return '';
@@ -62,7 +105,7 @@
     let body = '';
     if (k === 'general') {
       body += sec.when ? `<div class="fact"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS.schedule}</svg><div><b>When</b><span>${esc(sec.when)}</span></div></div>` : '';
-      body += sec.address ? `<div class="fact"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS.general}</svg><div><b>Where</b><span>${esc(sec.address)}</span>${mapsBtn(sec.address)}</div></div>` : '';
+      body += sec.address ? `<div class="fact"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS.general}</svg><div><b>Where</b><span>${isLink(sec.address) ? 'Pinned location on Google Maps' : esc(sec.address)}</span>${mapsBtn(sec.address)}</div></div>` : '';
       body += sec.text ? `<div class="info-text">${rich(sec.text)}</div>` : '';
     } else if (k === 'schedule') {
       if (sec.items.length) {
@@ -84,7 +127,7 @@
       }
       body += sec.text ? `<div class="info-text">${rich(sec.text)}</div>` : '';
     } else if (k === 'parking') {
-      body += sec.address ? `<div class="fact"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS.parking}</svg><div><b>Parking at</b><span>${esc(sec.address)}</span>${mapsBtn(sec.address)}</div></div>` : '';
+      body += sec.address ? `<div class="fact"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS.parking}</svg><div><b>Parking at</b><span>${isLink(sec.address) ? 'Pinned location on Google Maps' : esc(sec.address)}</span>${mapsBtn(sec.address)}</div></div>` : '';
       body += sec.text ? `<div class="info-text">${rich(sec.text)}</div>` : '';
     }
     body += photos(sec.images, LABELS[k]);
@@ -137,7 +180,16 @@
     if (location.hash && !render.jumped) { render.jumped = true; jumpTo(location.hash.slice(1)); }
   }
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
+    const cp = e.target.closest('[data-copy-addr]');
+    if (cp) {
+      const ok = await copyText(cp.dataset.copyAddr);
+      const label = cp.querySelector('span');
+      const orig = label.dataset.orig || (label.dataset.orig = label.textContent);
+      if (ok) { DMB.toast(/link/.test(orig) ? 'Link copied' : 'Address copied'); label.textContent = 'Copied ✓'; setTimeout(() => (label.textContent = orig), 2000); }
+      else prompt('Copy this address:', cp.dataset.copyAddr);
+      return;
+    }
     const p = e.target.closest('[data-img]');
     if (p) return viewImage(p.dataset.img, 'Event photo');
     const t = e.target.closest('#tabs a');

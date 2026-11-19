@@ -63,7 +63,7 @@
     let h = '';
     if (k === 'general') {
       h += `<label class="field"><span>When</span><input class="input" data-f="when" value="${esc(s.when)}" maxlength="120" placeholder="Sat 22 Nov, 7 PM till late"></label>`;
-      h += `<label class="field"><span>Venue address (opens in Google Maps)</span><input class="input" data-f="address" value="${esc(s.address)}" maxlength="200" placeholder="Hotel Grand, Banjara Hills, Hyderabad"></label>`;
+      h += `<label class="field"><span>Venue address, or paste a Google Maps link</span><input class="input" data-f="address" value="${esc(s.address)}" maxlength="200" placeholder="Hotel Grand, Banjara Hills, Hyderabad"></label>`;
       h += `<label class="field"><span>Details</span><textarea class="input" data-f="text" rows="5" maxlength="3000" placeholder="Dress code, entry rules, contact number…">${esc(s.text)}</textarea></label>`;
     }
     if (k === 'schedule' || k === 'food') {
@@ -73,7 +73,7 @@
       h += `<label class="field"><span>Notes (optional)</span><textarea class="input" data-f="text" rows="3" maxlength="3000" placeholder="${k === 'food' ? 'Buffet opens at 8 PM. Jain food on request.' : 'Timings may shift a little on the night.'}">${esc(s.text)}</textarea></label>`;
     }
     if (k === 'parking') {
-      h += `<label class="field"><span>Parking location (opens in Google Maps)</span><input class="input" data-f="address" value="${esc(s.address)}" maxlength="200" placeholder="Basement P2, Hotel Grand"></label>`;
+      h += `<label class="field"><span>Parking address, or paste a Google Maps link</span><input class="input" data-f="address" value="${esc(s.address)}" maxlength="200" placeholder="Basement P2, Hotel Grand"></label>`;
       h += `<label class="field"><span>Details</span><textarea class="input" data-f="text" rows="4" maxlength="3000" placeholder="Free valet at the main gate. Overflow parking behind the hall.">${esc(s.text)}</textarea></label>`;
     }
     // photos (saved straight away when uploaded)

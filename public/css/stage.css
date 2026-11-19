@@ -266,8 +266,14 @@
 .fact > svg { width: 24px; height: 24px; flex: none; margin-top: 2px; fill: none; stroke: var(--flare); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .fact b { display: block; font-size: 13px; color: var(--smoke); font-weight: 700; }
 .fact span { display: block; font-size: 17px; font-weight: 700; line-height: 1.35; }
-.map-btn { margin-top: 10px; }
-.map-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+.map-actions { margin-top: 12px; }
+.map-go { min-height: 50px; padding: 0 22px; font-size: 16px; }
+.map-go svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linejoin: round; }
+.map-alt { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chip-link { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--glass-line); background: rgba(255,255,255,.06); color: var(--bone); font: inherit; font-weight: 800; font-size: 13.5px; text-decoration: none; cursor: pointer; }
+.chip-link:active { transform: scale(.97); }
+.fact .chip-link span { display: inline; font-size: inherit; font-weight: inherit; line-height: inherit; }
+.chip-link svg { width: 17px; height: 17px; fill: none; stroke: var(--flare); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
 .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
 .timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: rgba(255,255,255,.12); }
