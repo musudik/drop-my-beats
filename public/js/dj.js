@@ -285,7 +285,7 @@
       if (!file) return;
       const lbl = slot.querySelector('.file-label');
       lbl.firstChild.textContent = 'Uploading…';
-      try { await DMB.uploadMedia(code, kind, file, key); toast(kind === 'logo' ? 'Logo updated' : 'Poster updated'); }
+      try { await DMB.uploadMedia(code, kind, file, key); toast({ logo: 'Event logo updated', poster: 'Poster updated', djlogo: 'DJ logo updated' }[kind] || 'Updated'); }
       catch (err) { toast(err.message, true); }
       lbl.firstChild.textContent = 'Upload';
     };

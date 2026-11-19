@@ -29,6 +29,7 @@ body {
   overflow-x: hidden;
 }
 img { max-width: 100%; display: block; }
+[hidden] { display: none !important; }
 a { color: var(--orange-2); }
 button, input, select, textarea { font: inherit; color: inherit; }
 h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -0.01em; margin: 0; }

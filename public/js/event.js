@@ -101,6 +101,7 @@
     if (s.logoUrl && evLogo.getAttribute('src') !== s.logoUrl) evLogo.src = s.logoUrl;
     evLogo.classList.toggle('hidden', !s.logoUrl);
     renderInfoLinks(s);
+    renderDj(s);
     renderNameBrand(s);
 
     $('#ended').classList.toggle('hidden', s.status !== 'ended');
@@ -251,6 +252,17 @@
     food: ['Food menu', '<path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8M7 7h4M17 3c-2 2-2 7 0 9v9"/>'],
     parking: ['Parking', '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M10 17V8h3a2.5 2.5 0 0 1 0 5h-3"/>'],
   };
+  // DJ's own logo + name
+  let djKey = null;
+  function renderDj(s) {
+    const k = (s.djlogoUrl || '') + '|' + (s.djName || '');
+    if (k === djKey) return;
+    djKey = k;
+    const el = $('#djStrip');
+    el.classList.toggle('hidden', !s.djlogoUrl);
+    el.innerHTML = s.djlogoUrl ? `<img src="${esc(s.djlogoUrl)}" alt="${esc(s.djName || 'DJ')} logo"><div><span>Your DJ tonight</span><b>${esc(s.djName || 'On the decks')}</b></div>` : '';
+  }
+
   let infoKey = '';
   function renderInfoLinks(s) {
     const keys = (s.info || []).filter((k) => INFO[k]);

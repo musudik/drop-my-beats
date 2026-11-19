@@ -173,6 +173,7 @@
 
     let html = '';
     if (d.posterUrl) html += `<button class="info-poster" data-img="${esc(d.posterUrl)}" aria-label="Open the event poster"><img src="${esc(d.posterUrl)}" alt="${esc(d.name)} poster"><span class="zoom">Tap to zoom</span></button>`;
+    if (d.djlogoUrl) html += `<div class="dj-strip info-dj"><img src="${esc(d.djlogoUrl)}" alt="${esc(d.djName || 'DJ')} logo"><div><span>Your DJ tonight</span><b>${esc(d.djName || 'On the decks')}</b></div></div>`;
     if (!keys.length) html += `<div class="empty-line" style="margin-top:16px">The organiser hasn't added the schedule, menu or parking details yet. Check back soon.</div>`;
     html += keys.map((k) => sectionHtml(k, d.sections[k])).join('');
     $('#main').innerHTML = html;

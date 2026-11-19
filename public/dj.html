@@ -93,10 +93,15 @@
             <label class="field"><span>DJ name</span><input class="input" name="djName" maxlength="40"></label>
             <label class="field"><span>Venue</span><input class="input" name="venue" maxlength="60"></label>
 
-            <h3 style="font-size:15px;margin-top:20px">🎨 Event logo &amp; poster</h3>
+            <h3 style="font-size:15px;margin-top:20px">🎨 Event logo, poster &amp; DJ logo</h3>
             <div class="brand-slot" data-kind="logo">
               <img class="thumb" alt="" hidden><div class="thumb" data-empty style="background-image:url(/img/logo-mark.png)"></div>
               <div class="grow"><b>Event logo</b><div class="faint small">Square works best. Shown on the guest page and big screen.</div>
+                <div class="row" style="margin-top:8px;gap:6px"><label class="btn sm dark file-label">Upload<input type="file" accept="image/*"></label><button type="button" class="btn sm ghost" data-remove hidden>Remove</button></div></div>
+            </div>
+            <div class="brand-slot" data-kind="djlogo">
+              <img class="thumb" alt="" hidden><div class="thumb" data-empty style="background-image:url(/img/logo-mark.png)"></div>
+              <div class="grow"><b>DJ logo</b><div class="faint small">The DJ's own brand. Shown next to the DJ's name for guests, on the big screen and on the event info page.</div>
                 <div class="row" style="margin-top:8px;gap:6px"><label class="btn sm dark file-label">Upload<input type="file" accept="image/*"></label><button type="button" class="btn sm ghost" data-remove hidden>Remove</button></div></div>
             </div>
             <div class="brand-slot poster" data-kind="poster">
